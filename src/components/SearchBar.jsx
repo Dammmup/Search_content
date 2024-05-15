@@ -8,7 +8,6 @@ import { Link } from 'react-router-dom';
 import './searchbar.css';
 import logo from './logo.png';
 
-const { Search } = Input;
 
 const SearchBar = () => {
   const [showCategories, setShowCategories] = useState(true); // Состояние для отображения/скрытия категорий
@@ -31,7 +30,6 @@ const SearchBar = () => {
         {showCategories && <CategoryButtons />} {/* Условное отображение категорий */}
       </Space>
 
-      <SearchResults results={searchResults} />
       {showFavoritesButton && (
         <Link to="/favorites">
           <Button type="primary" shape="round" icon={<HeartOutlined />} onClick={handleFavoritesClick} />
