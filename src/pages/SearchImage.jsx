@@ -10,7 +10,7 @@ export const SearchImage = () => {
 
   const handleSearch = async () => {
     try {
-      const response = await axios.get(`https://api.unsplash.com/search/photos?query=${query}&client_id=YOUR_ACCESS_KEY`);
+      const response = await axios.get(`https://api.unsplash.com/search/photos?query=${query}&client_id=3CQ-Y7JZ_hSuDcAC4OsLJm5hbIJ4u5WFlcLQ9f3rYok`);
       setImages(response.data.results);
     } catch (error) {
       console.error('Ошибка при выполнении запроса:', error);
