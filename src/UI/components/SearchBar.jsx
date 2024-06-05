@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { Input, Space, Button, ConfigProvider } from 'antd';
 import { HeartOutlined } from '@ant-design/icons';
 import { CategoryButtons } from './CategoryButtons';
-import { SearchResults } from './SearchResults';
 import { Link } from 'react-router-dom';
 
 import './searchbar.css';

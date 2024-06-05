@@ -48,22 +48,6 @@ export const CategoryButtons = () => (
       </Button></Link>
     </ConfigProvider>
 
-    <ConfigProvider
-      theme={{
-        components: {
-          Button: {
-            colorPrimary: `linear-gradient(116deg,  ${colors3.join(', ')})`,
-            colorPrimaryHover: `linear-gradient(116deg, ${getHoverColors(colors3).join(', ')})`,
-            colorPrimaryActive: `linear-gradient(116deg, ${getActiveColors(colors3).join(', ')})`,
-            lineWidth: 0,
-          },
-        },
-      }}
-    ><Link to="/book">
-      <Button type="primary" size="large">
-        Книги
-      </Button></Link>
-    </ConfigProvider>
 
     <ConfigProvider
       theme={{
@@ -82,22 +66,7 @@ export const CategoryButtons = () => (
       </Button></Link>
     </ConfigProvider>
 
-    <ConfigProvider
-      theme={{
-        components: {
-          Button: {
-            colorPrimary: `linear-gradient(90deg,  ${colors2.join(', ')})`,
-            colorPrimaryHover: `linear-gradient(90deg, ${getHoverColors(colors2).join(', ')})`,
-            colorPrimaryActive: `linear-gradient(90deg, ${getActiveColors(colors2).join(', ')})`,
-            lineWidth: 0,
-          },
-        },
-      }}
-    ><Link to="/gif">
-      <Button type="primary" size="large">
-        Гифки
-      </Button></Link>
-    </ConfigProvider>
+
 
     <ConfigProvider
       theme={{
