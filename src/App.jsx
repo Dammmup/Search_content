@@ -9,13 +9,14 @@ import { NumbersFact } from './UI/pages/NumbersFact';
 import { Favorites } from './UI/pages/Favorites';
 import Buttons from './UI/components/SearchBar';
 import { Empty } from './UI/pages/Empty';
+import { Profile } from './UI/pages/Profile';
 function App() {
-  const [count, setCount] = useState(0)
 
   return (
     <>
-        <Buttons/>
+        {/* <Buttons/> */}
      <div>
+     {/* <h2 className='text'>Для того что бы начать поиск, нажмите на одну из 5 кнопок</h2> */}
       <Routes>
         <Route path="/favorites" element={<Favorites />} /> 
         <Route path="/" element={<MainPage />} />
@@ -25,7 +26,7 @@ function App() {
         <Route path="/ram" element={<RickAndMorty/>} />
         <Route path="/numbers" element={<NumbersFact/>} />
         <Route path="/empty" element={<Empty />}/>
-
+        <Route path="/profile" element ={<Profile/>}/>
       </Routes>
     </div>
     </>

@@ -1,12 +1,15 @@
-import { Input, Card, Row, Col } from 'antd';
+import { Input, Card, Row, Col, Button } from 'antd';
 import React, { useState } from 'react';
 import axios from 'axios';
+import { HeartOutlined } from '@ant-design/icons';
+import './styles/SearchFilm.css'; // Импортируем CSS для анимации
 
 const { Search } = Input;
 
 export const SearchFilm = () => {
   const [results, setSearchResults] = useState([]);
   const [error, setError] = useState(null);
+  const [isFlying, setIsFlying] = useState(null); // Для управления анимацией
 
   const onSearch = async (value) => {
     try {
@@ -15,7 +18,6 @@ export const SearchFilm = () => {
           'X-API-KEY': 'TVNGA92-EXWMKR4-N35G404-MPWWSHX'
         }
       });
-      console.log("SUCCESS", response.data);
 
       if (response.data && Array.isArray(response.data.docs)) {
         setSearchResults(response.data.docs);
@@ -28,6 +30,14 @@ export const SearchFilm = () => {
       console.error('Ошибка при выполнении запроса:', error);
       setError('Error fetching data');
     }
+  };
+
+  const handleLike = (filmId) => {
+    setIsFlying(filmId); // Установить id фильма для анимации
+    setTimeout(() => {
+      setIsFlying(null);
+      // Здесь можно добавить код для добавления фильма в корзину
+    }, 1000); // Длительность анимации должна совпадать с CSS
   };
 
   return (
@@ -46,6 +56,7 @@ export const SearchFilm = () => {
             {results.map((result) => (
               <Col key={result.id} xs={24} sm={12} md={8} lg={6}>
                 <Card
+                  className={`film-card ${isFlying === result.id ? 'fly-to-cart' : ''}`}
                   hoverable
                   style={{ marginBottom: 16 }}
                   cover={
@@ -65,6 +76,13 @@ export const SearchFilm = () => {
                       </>
                     } 
                   />
+                  <Button
+                    icon={<HeartOutlined />}
+                    onClick={() => handleLike(result.id)}
+                    style={{ display: 'block', marginTop: '10px' }}
+                  >
+                    Лайк
+                  </Button>
                 </Card>
               </Col>
             ))}

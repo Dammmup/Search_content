@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Input, Card, Row, Col } from 'antd';
+import { Input, Card, Row, Col, Button } from 'antd';
+import { HeartOutlined } from '@ant-design/icons';
+import './styles/SearchMusic.css'; // Импортируем CSS для анимации
 
 const { Search } = Input;
 
@@ -24,6 +26,7 @@ export const SearchMusic = () => {
   const [results, setSearchResults] = useState([]);
   const [token, setToken] = useState('');
   const [error, setError] = useState(null);
+  const [isFlying, setIsFlying] = useState(null); // Для управления анимацией
 
   useEffect(() => {
     const fetchToken = async () => {
@@ -64,6 +67,14 @@ export const SearchMusic = () => {
     }
   };
 
+  const handleLike = (trackId) => {
+    setIsFlying(trackId); // Установить id трека для анимации
+    setTimeout(() => {
+      setIsFlying(null);
+      // Здесь можно добавить код для добавления трека в корзину
+    }, 1000); // Длительность анимации должна совпадать с CSS
+  };
+
   return (
     <>
       <Search
@@ -80,6 +91,7 @@ export const SearchMusic = () => {
             {results.map((result) => (
               <Col key={result.id} xs={24} sm={12} md={8} lg={6}>
                 <Card
+                  className={`track-card ${isFlying === result.id ? 'fly-to-cart' : ''}`}
                   hoverable
                   style={{ marginBottom: 16 }}
                   cover={
@@ -92,6 +104,13 @@ export const SearchMusic = () => {
                     title={result.name} 
                     description={result.artists.map(artist => artist.name).join(', ')} 
                   />
+                  <Button
+                    icon={<HeartOutlined />}
+                    onClick={() => handleLike(result.id)}
+                    style={{ display: 'block', marginTop: '10px' }}
+                  >
+                    Лайк
+                  </Button>
                 </Card>
               </Col>
             ))}
