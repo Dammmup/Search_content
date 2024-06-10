@@ -3,6 +3,7 @@ import axios from 'axios';
 import { Input, Card, Row, Col, Button } from 'antd';
 import { HeartOutlined } from '@ant-design/icons';
 import './styles/SearchMusic.css'; // Импортируем CSS для анимации
+import Buttons from '../components/SearchBar';
 
 const { Search } = Input;
 
@@ -59,7 +60,7 @@ export const SearchMusic = () => {
         setError(null);
       } else {
         setSearchResults([]);
-        setError('No results found');
+        setError('');
       }
     } catch (error) {
       console.error('Error fetching data from Spotify:', error);
@@ -68,22 +69,23 @@ export const SearchMusic = () => {
   };
 
   const handleLike = (trackId) => {
-    setIsFlying(trackId); // Установить id трека для анимации
+    setIsFlying(trackId); 
     setTimeout(() => {
       setIsFlying(null);
-      // Здесь можно добавить код для добавления трека в корзину
-    }, 1000); // Длительность анимации должна совпадать с CSS
+    }, 1000);
   };
 
   return (
     <>
+    <Buttons/>
+    <div style={{textAlign:'center',marginTop: '10px'}}>
       <Search
         placeholder="Введите название трека"
         allowClear
         enterButton="Поиск"
         style={{ width: 300 }}
         onSearch={onSearch}
-      />
+      /></div>
       <div className="results-container" style={{ marginTop: '20px' }}>
         {error && <div style={{ color: 'red' }}>{error}</div>}
         {results.length > 0 ? (
@@ -116,7 +118,7 @@ export const SearchMusic = () => {
             ))}
           </Row>
         ) : (
-          !error && <div>No results found</div>
+          !error && <div></div>
         )}
       </div>
     </>

@@ -3,6 +3,7 @@ import axios from 'axios';
 import { Input, Card, Row, Col, Button } from 'antd';
 import { HeartOutlined } from '@ant-design/icons';
 import './styles/SearchImage.css'; // Импортируем CSS для анимации
+import Buttons from '../components/SearchBar';
 
 const { Search } = Input;
 
@@ -34,14 +35,16 @@ export const SearchImage = () => {
 
   return (
     <div>
+      <Buttons/>
+      <div style={{textAlign:'center',marginTop: '10px'}}>
       <Search
         placeholder="Введите запрос"
         enterButton="Поиск"
-        size="large"
+        style={{ width: 300 }}
         value={query}
         onChange={handleInputChange}
         onSearch={handleSearch}
-      />
+      /></div>
       <Row gutter={[16, 16]}>
         {images.map((image) => (
           <Col key={image.id} xs={24} sm={12} md={8} lg={6}>

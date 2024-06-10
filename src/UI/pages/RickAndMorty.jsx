@@ -3,6 +3,7 @@ import { Input, Card, Row, Col, Button } from 'antd';
 import axios from 'axios';
 import { HeartOutlined } from '@ant-design/icons';
 import './styles/RickAndMorty.css'; // Импортируем CSS для анимации
+import Buttons from '../components/SearchBar';
 
 const { Search } = Input;
 const { Meta } = Card;
@@ -30,12 +31,15 @@ export const RickAndMorty = () => {
 
   return (
     <>
+    <Buttons/>
+    <div style={{textAlign:'center',marginTop: '10px'}}>
       <Search
         placeholder="Введите имя персонажа"
         allowClear
         enterButton="Поиск"
         onSearch={onSearch}
-      />
+        style={{ width: 300,textAlign:'center' }}
+      /></div>
       <Row gutter={[16, 16]}>
         {results.map((character) => (
           <Col key={character.id} xs={24} sm={12} md={8} lg={6} xl={4}>

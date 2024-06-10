@@ -79,7 +79,7 @@ export const CategoryButtons = () => (
           },
         },
       }}
-    ><Link to="ram">
+    ><Link to="/ram">
       <Button type="primary" size="large">
         Рик и Морти
       </Button></Link>
@@ -96,7 +96,7 @@ export const CategoryButtons = () => (
           },
         },
       }}
-    ><Link to="numbers">
+    ><Link to="/numbers">
       <Button type="primary" size="large">
         Интересная дата
       </Button></Link>

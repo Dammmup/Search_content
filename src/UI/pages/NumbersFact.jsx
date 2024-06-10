@@ -4,6 +4,7 @@ import { Button, Card, DatePicker, Input } from 'antd';
 import moment from 'moment';
 import { HeartOutlined } from '@ant-design/icons';
 import './styles/NumbersFact.css'; 
+import Buttons from '../components/SearchBar';
 
 export const NumbersFact = () => {
   const [date, setDate] = useState(null);
@@ -74,14 +75,16 @@ export const NumbersFact = () => {
 
   return (
     <div>
-      <div style={{ marginBottom: '10px' }}>
+      <Buttons/>
+      <div style={{ marginBottom: '10px', display:'flex',flexDirection:'column',alignContent:'center',justifyContent:'space-between',alignItems:'center'}}>
         <Input
           type="number"
           placeholder="Введите число для Math"
           value={mathNumber}
           onChange={handleMathInputChange}
           onPressEnter={handleSearch}
-          style={{ marginBottom: '10px' }}
+          style={{ marginBottom: '10px',width:300,borderRadius:'1px ' }}
+          
         />
         <Input
           type="number"
@@ -89,11 +92,12 @@ export const NumbersFact = () => {
           value={triviaNumber}
           onChange={handleTriviaInputChange}
           onPressEnter={handleSearch}
+          style={{ width: 300 }}
         />
-      </div>
-      <div style={{ marginBottom: '10px' }}>
+    
+      <div style={{ marginBottom: '10px',marginTop:'10px' }}>
         <DatePicker onChange={handleDateChange} disabledDate={(current) => current && current > moment().endOf('day')} />
-      </div>
+      </div>  </div>
       {fact && (  // Conditional rendering of the fact card and like button
         <Card
           className={`fact-card ${isFlying ? 'fly-to-cart' : ''}`}
