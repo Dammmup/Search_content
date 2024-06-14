@@ -1,4 +1,3 @@
-import { useState } from 'react'
 import { Routes, Route } from "react-router-dom";
 import { MainPage } from './MainPage';
 import { SearchFilm } from './UI/pages/SearchFilm';
@@ -7,16 +6,14 @@ import { SearchImage } from './UI/pages/SearchImage';
 import { RickAndMorty } from './UI/pages/RickAndMorty';
 import { NumbersFact } from './UI/pages/NumbersFact';
 import { Favorites } from './UI/pages/Favorites';
-import Buttons from './UI/components/SearchBar';
 import { Empty } from './UI/pages/Empty';
 import { Profile } from './UI/pages/Profile';
 function App() {
 
   return (
     <>
-        {/* <Buttons/> */}
+
      <div>
-     {/* <h2 className='text'>Для того что бы начать поиск, нажмите на одну из 5 кнопок</h2> */}
       <Routes>
         <Route path="/favorites" element={<Favorites />} /> 
         <Route path="/" element={<MainPage />} />

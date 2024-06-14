@@ -1,22 +1,27 @@
+// src/UI/pages/NumbersFact.js
 import React, { useState } from 'react';
-import axios from 'axios';
-import { Button, Card, DatePicker, Input } from 'antd';
+import { Button, Card, DatePicker, Input, Alert, Spin } from 'antd';
 import moment from 'moment';
-import { HeartOutlined } from '@ant-design/icons';
+import { useDispatch, useSelector } from 'react-redux';
+import { fetchMathFact, fetchTriviaFact, fetchDateFact } from '../../BL/slices/numbersFactSlice';
+
+import { HeartOutlined, HeartFilled } from '@ant-design/icons';
 import './styles/NumbersFact.css'; 
 import Buttons from '../components/SearchBar';
+import { Flex } from 'antd';
 
 export const NumbersFact = () => {
+  const dispatch = useDispatch();
+  const { fact, status, error } = useSelector((state) => state.numbersFact);
   const [date, setDate] = useState(null);
   const [mathNumber, setMathNumber] = useState('');
   const [triviaNumber, setTriviaNumber] = useState('');
-  const [fact, setFact] = useState('');
-  const [isFlying, setIsFlying] = useState(false);
+  const [liked, setLiked] = useState(false);
 
   const handleDateChange = (date) => {
     setDate(date);
     if (date) {
-      fetchDateFact(date);
+      dispatch(fetchDateFact(date.format('M/D')));
     }
   };
 
@@ -30,52 +35,21 @@ export const NumbersFact = () => {
     setMathNumber(''); // Clear the other field
   };
 
-  const fetchMathFact = async (number) => {
-    try {
-      const response = await axios.get(`http://numbersapi.com/${number}/math`);
-      setFact(response.data);
-    } catch (error) {
-      console.error('Error fetching math fact:', error);
-    }
-  };
-
-  const fetchTriviaFact = async (number) => {
-    try {
-      const response = await axios.get(`http://numbersapi.com/${number}/trivia`);
-      setFact(response.data);
-    } catch (error) {
-      console.error('Error fetching trivia fact:', error);
-    }
-  };
-
-  const fetchDateFact = async (date) => {
-    try {
-      const response = await axios.get(`http://numbersapi.com/${date.format('M/D')}/date`);
-      setFact(response.data);
-    } catch (error) {
-      console.error('Error fetching date fact:', error);
-    }
-  };
-
   const handleSearch = () => {
     if (mathNumber) {
-      fetchMathFact(mathNumber);
+      dispatch(fetchMathFact(mathNumber));
     } else if (triviaNumber) {
-      fetchTriviaFact(triviaNumber);
+      dispatch(fetchTriviaFact(triviaNumber));
     }
   };
 
   const handleLike = () => {
-    setIsFlying(true);
-    setTimeout(() => {
-      setIsFlying(false);
-      // Здесь можно добавить код для добавления факта в корзину
-    }, 1000); // Длительность анимации должна совпадать с CSS
+    setLiked(!liked);
   };
 
   return (
     <div>
-      <Buttons/>
+      <Buttons />
       <div style={{ marginBottom: '10px', display:'flex',flexDirection:'column',alignContent:'center',justifyContent:'space-between',alignItems:'center'}}>
         <Input
           type="number"
@@ -83,8 +57,7 @@ export const NumbersFact = () => {
           value={mathNumber}
           onChange={handleMathInputChange}
           onPressEnter={handleSearch}
-          style={{ marginBottom: '10px',width:300,borderRadius:'1px ' }}
-          
+          style={{ marginBottom: '10px', width: 300 }}
         />
         <Input
           type="number"
@@ -94,25 +67,42 @@ export const NumbersFact = () => {
           onPressEnter={handleSearch}
           style={{ width: 300 }}
         />
-    
-      <div style={{ marginBottom: '10px',marginTop:'10px' }}>
-        <DatePicker onChange={handleDateChange} disabledDate={(current) => current && current > moment().endOf('day')} />
-      </div>  </div>
-      {fact && (  // Conditional rendering of the fact card and like button
-        <Card
-          className={`fact-card ${isFlying ? 'fly-to-cart' : ''}`}
-          style={{ marginTop: '20px' }}
-        >
-          <p>{fact}</p>
-          <Button
-            icon={<HeartOutlined />}
-            onClick={handleLike}
-            style={{ display: fact ? 'block' : 'none' }} // Like button is shown only if there is a fact
-          >
-            Лайк
-          </Button>
-        </Card>
-      )}
+        <div style={{ marginBottom: '10px', marginTop:'10px' }}>
+          <DatePicker onChange={handleDateChange} disabledDate={(current) => current && current > moment().endOf('day')} />
+        </div>
+      </div>
+      <div className="results-container" style={{ marginTop: '20px' }}>
+        {status === 'loading' ? (
+          <Flex align="center" justify="center" style={{ height: '100%' }}>
+            <Spin size="large" />
+          </Flex>
+        ) : error ? (
+          <Alert message={error} type="error" />
+        ) : fact ? (
+          <Card className={`fact-card ${liked ? 'fly-to-cart' : ''}`} style={{ marginTop: '20px' }}>
+            <p>{fact}</p>
+            <Button
+              icon={liked ? <HeartFilled /> : <HeartOutlined />}
+              onClick={handleLike}
+              style={{ display: 'block', marginTop: '10px' }}
+            >
+              {liked ? 'Liked' : 'Лайк'}
+            </Button>
+          </Card>
+        ) : (
+          <div></div>
+        )}
+      </div>
+      <footer >
+<h5 style={{textAlign:'center'}}>Find us</h5>
+<div style={{display:'flex',justifyContent:'space-around'}}>
+<p> +7(747)8313398  </p>
+<p> damir.-@mail.ru </p>
+</div>
+</footer>
     </div>
   );
+
+  
+
 };

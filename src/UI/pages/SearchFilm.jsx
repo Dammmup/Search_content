@@ -1,65 +1,61 @@
-import { Input, Card, Row, Col, Button } from 'antd';
+import { Input, Card, Row, Col, Button, Alert, Spin } from 'antd';
 import React, { useState } from 'react';
-import axios from 'axios';
-import { HeartOutlined } from '@ant-design/icons';
-import './styles/SearchFilm.css'; // Импортируем CSS для анимации
+import { useSelector, useDispatch } from 'react-redux';
+import { fetchFilms } from '../../BL/slices/filmSlice';
+import { HeartOutlined, HeartFilled } from '@ant-design/icons';
+import './styles/SearchFilm.css';
 import Buttons from '../components/SearchBar';
+import { Flex } from 'antd';
 
 const { Search } = Input;
 
 export const SearchFilm = () => {
-  const [results, setSearchResults] = useState([]);
-  const [error, setError] = useState(null);
-  const [isFlying, setIsFlying] = useState(null); // Для управления анимацией
+  const dispatch = useDispatch();
+  const { films, status, error } = useSelector((state) => state.films);
+  const [likedFilms, setLikedFilms] = useState({});
+  const [isFlying, setIsFlying] = useState(null); 
 
-  const onSearch = async (value) => {
-    try {
-      const response = await axios.get(`https://api.kinopoisk.dev/v1.4/movie/search?query=${value}`, {
-        headers: {
-          'X-API-KEY': 'TVNGA92-EXWMKR4-N35G404-MPWWSHX'
-        }
-      });
-
-      if (response.data && Array.isArray(response.data.docs)) {
-        setSearchResults(response.data.docs);
-        setError(null);
-      } else {
-        setSearchResults([]);
-        setError('');
-      }
-    } catch (error) {
-      console.error('Ошибка при выполнении запроса:', error);
-      setError('Error fetching data');
-    }
+  const onSearch = (value) => {
+    dispatch(fetchFilms(value));
   };
 
   const handleLike = (filmId) => {
-    setIsFlying(filmId); // Установить id фильма для анимации
+    setIsFlying(filmId); console.log(filmId)
     setTimeout(() => {
       setIsFlying(null);
-      // Здесь можно добавить код для добавления фильма в корзину
-    }, 1000); // Длительность анимации должна совпадать с CSS
-  };
+    }, 1000); 
+  
+    setLikedFilms((prev) => ({
+      ...prev,
+      [filmId]: !prev[filmId]
+    }));
+  }
 
   return (
     <>
-    <Buttons/>
-    <div style={{textAlign:'center',marginTop: '10px'}}>
-      <Search
-        placeholder="Введите название"
-        allowClear
-        enterButton="Поиск"
-        style={{ width: 300 }}
-        onSearch={onSearch}
-      /></div>
+      <Buttons />
+      <div style={{ textAlign: 'center', marginTop: '10px' }}>
+        <Search
+          placeholder="Введите название"
+          allowClear
+          enterButton="Поиск"
+          style={{ width: 300 }}
+          onSearch={onSearch}
+        />
+      </div>
       <div className="results-container" style={{ marginTop: '20px' }}>
-        {error && <div style={{ color: 'red' }}>{error}</div>}
-        {results.length > 0 ? (
+        {status === 'loading' ? (
+          <Flex align="center" justify="center" style={{ height: '100%' }}>
+            <Spin size="large" />
+          </Flex>
+        ) : error ? (
+          <Alert message={error} type="error" />
+        ) : films.length > 0 ? (
           <Row gutter={[16, 16]}>
-            {results.map((result) => (
+            {films.map((result) => (
               <Col key={result.id} xs={24} sm={12} md={8} lg={6}>
                 <Card
-                  className={`film-card ${isFlying === result.id ? 'fly-to-cart' : ''}`}
+                  className={`film-card ${likedFilms[result.id] ? 'liked' : ''}  ${isFlying === result.id ? 'fly-to-cart' : ''}`}
                   hoverable
                   style={{ marginBottom: 16 }}
                   cover={
@@ -80,20 +76,30 @@ export const SearchFilm = () => {
                     } 
                   />
                   <Button
-                    icon={<HeartOutlined />}
+                    icon={likedFilms[result.id] ? <HeartFilled /> : <HeartOutlined />}
                     onClick={() => handleLike(result.id)}
                     style={{ display: 'block', marginTop: '10px' }}
                   >
-                    Лайк
+                    {likedFilms[result.id] ? 'Liked' : 'Лайк'}
                   </Button>
                 </Card>
               </Col>
             ))}
           </Row>
         ) : (
-          !error && <div></div>
+          <div></div>
         )}
       </div>
+      <footer >
+<h5 style={{textAlign:'center'}}>Find us</h5>
+<div style={{display:'flex',justifyContent:'space-around'}}>
+<p> +7(747)8313398  </p>
+<p> damir.-@mail.ru </p>
+</div>
+</footer>
     </>
   );
+
+  
+
 };

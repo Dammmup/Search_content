@@ -1,12 +1,19 @@
 import { configureStore } from "@reduxjs/toolkit";
 
-import catalogSlice from "./slices/catalogSlice";
 import basketSlice from "./slices/basketSlice";
+import filmReducer from './slices/filmSlice';
+import musicReducer from './slices/musicSlice';
+import imageReducer from './slices/imageSlice';
+import numbersFactReducer from './slices/numbersFactSlice';
+import rickAndMortyReducer from './slices/rickAndMortySlice';
 
 export const store = configureStore({
   reducer: {
-    catalogSlice,
-    // userSlice,
-    basketSlice,
+    films: filmReducer,
+    music: musicReducer,
+    images: imageReducer,
+    numbersFact: numbersFactReducer,
+    rickAndMorty: rickAndMortyReducer,
+
   },
 });

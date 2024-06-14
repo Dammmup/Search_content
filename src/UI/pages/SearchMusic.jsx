@@ -1,99 +1,61 @@
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
-import { Input, Card, Row, Col, Button } from 'antd';
-import { HeartOutlined } from '@ant-design/icons';
+// src/UI/pages/SearchMusic.js
+import React, { useState } from 'react';
+import { Input, Card, Row, Col, Button, Alert, Spin } from 'antd';
+import { useDispatch, useSelector } from 'react-redux';
+import { fetchMusic } from '../../BL/slices/musicSlice';
+import { HeartOutlined, HeartFilled } from '@ant-design/icons';
 import './styles/SearchMusic.css'; // Импортируем CSS для анимации
 import Buttons from '../components/SearchBar';
+import { Flex } from 'antd';
 
 const { Search } = Input;
 
-const CLIENT_ID = 'b3819ae69ef647abb1d892c56315085e';
-const CLIENT_SECRET = '085247e350df45de93e700d04cd34231';
-
-const getSpotifyToken = async () => {
-  const response = await axios.post('https://accounts.spotify.com/api/token', null, {
-    headers: {
-      'Content-Type': 'application/x-www-form-urlencoded',
-      'Authorization': 'Basic ' + btoa(`${CLIENT_ID}:${CLIENT_SECRET}`)
-    },
-    params: {
-      grant_type: 'client_credentials'
-    }
-  });
-  return response.data.access_token;
-};
-
 export const SearchMusic = () => {
-  const [results, setSearchResults] = useState([]);
-  const [token, setToken] = useState('');
-  const [error, setError] = useState(null);
+  const dispatch = useDispatch();
+  const { tracks, status, error } = useSelector((state) => state.music);
+  const [likedTracks, setLikedTracks] = useState({});
   const [isFlying, setIsFlying] = useState(null); // Для управления анимацией
 
-  useEffect(() => {
-    const fetchToken = async () => {
-      try {
-        const token = await getSpotifyToken();
-        setToken(token);
-      } catch (error) {
-        console.error('Error fetching Spotify token:', error);
-        setError('Error fetching Spotify token');
-      }
-    };
-    fetchToken();
-  }, []);
-
-  const onSearch = async (value) => {
-    try {
-      const response = await axios.get('https://api.spotify.com/v1/search', {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        },
-        params: {
-          q: value,
-          type: 'track'
-        }
-      });
-      console.log('SUCCESS', response.data);
-
-      if (response.data.tracks && response.data.tracks.items) {
-        setSearchResults(response.data.tracks.items);
-        setError(null);
-      } else {
-        setSearchResults([]);
-        setError('');
-      }
-    } catch (error) {
-      console.error('Error fetching data from Spotify:', error);
-      setError('Error fetching data');
-    }
+  const onSearch = (value) => {
+    dispatch(fetchMusic(value));
   };
 
   const handleLike = (trackId) => {
-    setIsFlying(trackId); 
+    setLikedTracks((prev) => ({
+      ...prev,
+      [trackId]: !prev[trackId],
+    }));
+    setIsFlying(trackId); // Устанавливаем id трека для анимации
     setTimeout(() => {
       setIsFlying(null);
-    }, 1000);
+    }, 1000); // Сбрасываем анимацию через 1 секунду
   };
 
   return (
     <>
-    <Buttons/>
-    <div style={{textAlign:'center',marginTop: '10px'}}>
-      <Search
-        placeholder="Введите название трека"
-        allowClear
-        enterButton="Поиск"
-        style={{ width: 300 }}
-        onSearch={onSearch}
-      /></div>
+      <Buttons />
+      <div style={{ textAlign: 'center', marginTop: '10px' }}>
+        <Search
+          placeholder="Введите название трека"
+          allowClear
+          enterButton="Поиск"
+          style={{ width: 300 }}
+          onSearch={onSearch}
+        />
+      </div>
       <div className="results-container" style={{ marginTop: '20px' }}>
-        {error && <div style={{ color: 'red' }}>{error}</div>}
-        {results.length > 0 ? (
+        {status === 'loading' ? (
+          <Flex align="center" justify="center" style={{ height: '100%' }}>
+            <Spin size="large" />
+          </Flex>
+        ) : error ? (
+          <Alert message={error} type="error" />
+        ) : tracks.length > 0 ? (
           <Row gutter={[16, 16]}>
-            {results.map((result) => (
+            {tracks.map((result) => (
               <Col key={result.id} xs={24} sm={12} md={8} lg={6}>
                 <Card
-                  className={`track-card ${isFlying === result.id ? 'fly-to-cart' : ''}`}
+                  className={`track-card ${likedTracks[result.id] ? 'liked' : ''} ${isFlying === result.id ? 'fly-to-cart' : ''}`}
                   hoverable
                   style={{ marginBottom: 16 }}
                   cover={
@@ -107,18 +69,18 @@ export const SearchMusic = () => {
                     description={result.artists.map(artist => artist.name).join(', ')} 
                   />
                   <Button
-                    icon={<HeartOutlined />}
+                    icon={likedTracks[result.id] ? <HeartFilled /> : <HeartOutlined />}
                     onClick={() => handleLike(result.id)}
                     style={{ display: 'block', marginTop: '10px' }}
                   >
-                    Лайк
+                    {likedTracks[result.id] ? 'Liked' : 'Лайк'}
                   </Button>
                 </Card>
               </Col>
             ))}
           </Row>
         ) : (
-          !error && <div></div>
+          <div></div>
         )}
       </div>
     </>
