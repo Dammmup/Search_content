@@ -1,6 +1,6 @@
-// src/components/AuthModal.js
 import React, { useState } from 'react';
 import { Modal, Button, Form, Input, Alert } from 'antd';
+import { accounts } from '../../BL/userdb';
 
 const AuthModal = ({ visible, onLogin, onCancel }) => {
   const [form] = Form.useForm();
@@ -8,12 +8,18 @@ const AuthModal = ({ visible, onLogin, onCancel }) => {
   const [error, setError] = useState(null);
 
   const handleSubmit = (values) => {
-    // Простая проверка для демонстрации
-    if (values.username === 'user' && values.password === 'password') {
+    // Проверка учетных данных с данными в userdb
+    const account = accounts.find(account => 
+      account.username === values.username && account.password === values.password
+    );
+
+    if (account) {
+      localStorage.setItem('username', values.username); // Сохранение имени пользователя
       onLogin();
     } else {
       setError('Неправильные имя пользователя или пароль');
     }
+    console.log(accounts,ac);
   };
 
   return (

@@ -21,11 +21,17 @@ const filmSlice = createSlice({
   name: 'films',
   initialState: {
     films: [],
-    status: 'idle', 
+    likedFilms: [],
+    status: 'idle',
     error: null,
   },
   reducers: {
-    
+    likeFilm: (state, action) => {
+      state.likedFilms.push(action.payload);
+    },
+    unlikeFilm: (state, action) => {
+      state.likedFilms = state.likedFilms.filter(film => film.id !== action.payload.id);
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -44,4 +50,5 @@ const filmSlice = createSlice({
   },
 });
 
+export const { likeFilm, unlikeFilm } = filmSlice.actions;
 export default filmSlice.reducer;

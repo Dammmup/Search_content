@@ -4,20 +4,20 @@ import axios from 'axios';
 
 const UNSPLASH_CLIENT_ID = '3CQ-Y7JZ_hSuDcAC4OsLJm5hbIJ4u5WFlcLQ9f3rYok';
 
-// Асинхронный thunk для поиска изображений
 export const fetchImages = createAsyncThunk(
   'images/fetchImages',
   async (query, { rejectWithValue }) => {
     try {
-      const response = await axios.get(`https://api.unsplash.com/search/photos`, {
+      const response = await axios.get('https://api.unsplash.com/search/photos', {
         params: {
-          query: query,
+          query,
           client_id: UNSPLASH_CLIENT_ID,
         },
       });
       return response.data.results;
     } catch (error) {
-      return rejectWithValue(error.response?.data || 'Error fetching data from Unsplash');
+      console.error('Error fetching images:', error);
+      return rejectWithValue(error.response?.data || 'Ошибка при загрузке данных с Unsplash');
     }
   }
 );
@@ -28,9 +28,16 @@ const imageSlice = createSlice({
     images: [],
     status: 'idle', // 'idle' | 'loading' | 'succeeded' | 'failed'
     error: null,
+    likedImages: [],
   },
   reducers: {
-    // Дополнительные редюсеры могут быть добавлены здесь
+    likeImage: (state, action) => {
+      const { id, alt_description, urls } = action.payload;
+      state.likedImages.push({ id, alt_description, urls });
+    },
+    unlikeImage: (state, action) => {
+      state.likedImages = state.likedImages.filter(image => image.id !== action.payload.id);
+    }
   },
   extraReducers: (builder) => {
     builder
@@ -48,5 +55,7 @@ const imageSlice = createSlice({
       });
   },
 });
+
+export const { likeImage, unlikeImage } = imageSlice.actions;
 
 export default imageSlice.reducer;

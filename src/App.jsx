@@ -5,9 +5,9 @@ import { SearchMusic } from './UI/pages/SearchMusic';
 import { SearchImage } from './UI/pages/SearchImage';
 import { RickAndMorty } from './UI/pages/RickAndMorty';
 import { NumbersFact } from './UI/pages/NumbersFact';
-import { Favorites } from './UI/pages/Favorites';
 import { Empty } from './UI/pages/Empty';
 import { Profile } from './UI/pages/Profile';
+import { Favorites } from "./UI/pages/Favorites";
 function App() {
 
   return (

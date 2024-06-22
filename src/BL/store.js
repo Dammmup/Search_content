@@ -1,6 +1,5 @@
 import { configureStore } from "@reduxjs/toolkit";
 
-import basketSlice from "./slices/basketSlice";
 import filmReducer from './slices/filmSlice';
 import musicReducer from './slices/musicSlice';
 import imageReducer from './slices/imageSlice';

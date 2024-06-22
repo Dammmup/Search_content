@@ -1,4 +1,3 @@
-// src/store/numbersFactSlice.js
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
 
@@ -8,7 +7,7 @@ export const fetchMathFact = createAsyncThunk(
   async (number, { rejectWithValue }) => {
     try {
       const response = await axios.get(`http://numbersapi.com/${number}/math`);
-      return response.data;
+      return { text: response.data, id: `math-${number}` }; // Добавляем id
     } catch (error) {
       return rejectWithValue(error.response?.data || 'Ошибка получения математического факта');
     }
@@ -20,7 +19,7 @@ export const fetchTriviaFact = createAsyncThunk(
   async (number, { rejectWithValue }) => {
     try {
       const response = await axios.get(`http://numbersapi.com/${number}/trivia`);
-      return response.data;
+      return { text: response.data, id: `trivia-${number}` }; // Добавляем id
     } catch (error) {
       return rejectWithValue(error.response?.data || 'Ошибка получения тривиального факта');
     }
@@ -32,7 +31,7 @@ export const fetchDateFact = createAsyncThunk(
   async (date, { rejectWithValue }) => {
     try {
       const response = await axios.get(`http://numbersapi.com/${date}/date`);
-      return response.data;
+      return { text: response.data, id: `date-${date}` }; // Добавляем id
     } catch (error) {
       return rejectWithValue(error.response?.data || 'Ошибка получения факта по дате');
     }
@@ -45,8 +44,16 @@ const numbersFactSlice = createSlice({
     fact: '',
     status: 'idle', // 'idle' | 'loading' | 'succeeded' | 'failed'
     error: null,
+    likedFacts: []
   },
-  reducers: {},
+  reducers: {
+    likeFact: (state, action) => {
+      state.likedFacts.push(action.payload);
+    },
+    unlikeFact: (state, action) => {
+      state.likedFacts = state.likedFacts.filter(fact => fact.id !== action.payload.id);
+    },
+  },
   extraReducers: (builder) => {
     builder
       .addCase(fetchMathFact.pending, (state) => {
@@ -87,5 +94,6 @@ const numbersFactSlice = createSlice({
       });
   },
 });
+export const { likeFact, unlikeFact } = numbersFactSlice.actions;
 
 export default numbersFactSlice.reducer;

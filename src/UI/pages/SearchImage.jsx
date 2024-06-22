@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { Input, Card, Row, Col, Button, Alert, Spin } from 'antd';
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchImages } from '../../BL/slices/imageSlice';
+import { fetchImages, likeImage, unlikeImage } from '../../BL/slices/imageSlice';
 import { HeartOutlined, HeartFilled } from '@ant-design/icons';
 import './styles/SearchImage.css'; // Импортируем CSS для анимации
 import Buttons from '../components/SearchBar';
@@ -12,9 +12,8 @@ const { Search } = Input;
 
 export const SearchImage = () => {
   const dispatch = useDispatch();
-  const { images, status, error } = useSelector((state) => state.images);
+  const { images, status, error,likedImages } = useSelector((state) => state.images);
   const [query, setQuery] = useState('');
-  const [likedImages, setLikedImages] = useState({});
   const [isFlying, setIsFlying] = useState(null); // Для управления анимацией
 
   const onSearch = (value) => {
@@ -22,17 +21,20 @@ export const SearchImage = () => {
     dispatch(fetchImages(value));
   };
 
-  const handleLike = (imageId) => {
-    setLikedImages((prev) => ({
-      ...prev,
-      [imageId]: !prev[imageId],
-    }));
-    setIsFlying(imageId); // Устанавливаем id изображения для анимации
+
+
+  const handleLike = (image) => {
+    setIsFlying(image);
     setTimeout(() => {
       setIsFlying(null);
-    }, 1000); // Сбрасываем анимацию через 1 секунду
-  };
+    }, 1000);
 
+    if (likedImages.some((likedimage) => likedimage.id === image.id)) {
+      dispatch(unlikeImage(image));
+    } else {
+      dispatch(likeImage(image));
+    }
+  };
   return (
     <div>
       <Buttons />
@@ -55,28 +57,33 @@ export const SearchImage = () => {
           <Alert message={error} type="error" />
         ) : images.length > 0 ? (
           <Row gutter={[16, 16]}>
-            {images.map((image) => (
-              <Col key={image.id} xs={24} sm={12} md={8} lg={6}>
+            {images.map((result) => (
+              <Col key={result.id} xs={24} sm={12} md={8} lg={6}>
                 <Card
-                  className={`image-card ${likedImages[image.id] ? 'liked' : ''} ${isFlying === image.id ? 'fly-to-cart' : ''}`}
+                  className={`image-card ${likedImages.some((likedImage) => likeImage.id === result.id) ? 'liked' : ''} ${isFlying === result.id ? 'fly-to-cart' : ''}`}
                   hoverable
                   style={{ marginBottom: 16 }}
                   cover={
                     <img
-                      alt={image.alt_description}
-                      src={image.urls.small}
+                      alt={result.alt_description}
+                      src={result.urls.small}
                       style={{ height: '200px', objectFit: 'cover' }}
                     />
                   }
                 >
-                  <Card.Meta title={image.alt_description} />
+                  <Card.Meta title={result.alt_description} />
                   <Button
-                    icon={likedImages[image.id] ? <HeartFilled /> : <HeartOutlined />}
-                    onClick={() => handleLike(image.id)}
-                    style={{ display: 'block', marginTop: '10px' }}
-                  >
-                    {likedImages[image.id] ? 'Liked' : 'Лайк'}
-                  </Button>
+                    type="text"
+                    icon={
+                      likedImages.some((likedImage) => likedImage.id === result.id) ? (
+                        <HeartFilled style={{ color: 'red' }} />
+                      ) : (
+                        <HeartOutlined />
+                      )
+                    }
+                    onClick={() => handleLike(result)}
+                    className={isFlying === result.id ? 'flying-heart' : ''}
+                  />
                 </Card>
               </Col>
             ))}

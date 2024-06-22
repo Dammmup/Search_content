@@ -1,12 +1,12 @@
-import React, { useState } from 'react';
-import { Space, Button, ConfigProvider, Empty } from 'antd';
+import React, { useState, useEffect } from 'react';
+import { Space, Button, ConfigProvider } from 'antd';
 import { HeartOutlined, UserOutlined } from '@ant-design/icons';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { TinyColor } from '@ctrl/tinycolor';
-import AuthModal from './AuthModal'; // Импортируем компонент
-import { liked } from '../../BL/likedmedia';
+import AuthModal from './AuthModal';
 import './searchbar.css';
 import logo from './logo.png';
+import { useSelector } from 'react-redux';
 
 const colors1 = ['#6253E1', '#04BEFE'];
 const colors2 = ['#fc6076', '#ff9a44', '#ef9d43', '#e75516'];
@@ -16,21 +16,61 @@ const getHoverColors = (colors) => colors.map((color) => new TinyColor(color).li
 const getActiveColors = (colors) => colors.map((color) => new TinyColor(color).darken(5).toString());
 
 const Buttons = () => {
-  const [showCategories, setShowCategories] = useState(true);
-  const [isAuthModalVisible, setIsAuthModalVisible] = useState(false); // Состояние для видимости модального окна
-  const [isAuthenticated, setIsAuthenticated] = useState(false); // Состояние для авторизации пользователя
+  const [isAuthModalVisible, setIsAuthModalVisible] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [redirectPath, setRedirectPath] = useState(null);
+
+  const navigate = useNavigate();
+  const { likedFilms } = useSelector((state) => state.films || {});
+  const { likedImages } = useSelector((state) => state.images || {});
+  const { likedTracks } = useSelector((state) => state.music || {});
+  const { likedCharacters } = useSelector((state) => state.characters || {});
+  const { likedFacts } = useSelector((state) => state.facts || {});
+
+  const likedItems = React.useMemo(
+    () => [...(likedFilms || []), ...(likedImages || []), ...(likedTracks || []), ...(likedCharacters || []), ...(likedFacts || [])],
+    [likedFilms, likedImages, likedTracks, likedCharacters, likedFacts]
+  );
+
+  useEffect(() => {
+    const checkAuthStatus = () => {
+      const userToken = localStorage.getItem('userToken');
+      console.log('Checking auth status:', userToken); // Отладочный вывод
+      if (userToken) {
+        setIsAuthenticated(true);
+      }
+    };
+    checkAuthStatus();
+  }, []);
 
   const handleFavoritesClick = () => {
     if (!isAuthenticated) {
+      setRedirectPath('/favorites');
       setIsAuthModalVisible(true);
     } else {
-      setShowCategories(false);
+      if (likedItems.length > 0) {
+        navigate('/favorites');
+      } else {
+        navigate('/empty');
+      }
+    }
+  };
+
+  const handleProfileClick = () => {
+    if (!isAuthenticated) {
+      setRedirectPath('/profile');
+      setIsAuthModalVisible(true);
+    } else {
+      navigate('/profile');
     }
   };
 
   const handleLogin = () => {
     setIsAuthenticated(true);
-    setIsAuthModalVisible(false); 
+    setIsAuthModalVisible(false);
+    if (redirectPath) {
+      navigate(redirectPath);
+    }
   };
 
   const handleCancel = () => {
@@ -44,111 +84,106 @@ const Buttons = () => {
       </div>
 
       <Space>
-        {showCategories    &&(
-          <Space>
-            <ConfigProvider
-              theme={{
-                components: {
-                  Button: {
-                    colorPrimary: `linear-gradient(135deg, ${colors1.join(', ')})`,
-                    colorPrimaryHover: `linear-gradient(135deg, ${getHoverColors(colors1).join(', ')})`,
-                    colorPrimaryActive: `linear-gradient(135deg, ${getActiveColors(colors1).join(', ')})`,
-                    lineWidth: 0,
-                  },
+        <Space>
+          <ConfigProvider
+            theme={{
+              components: {
+                Button: {
+                  colorPrimary: `linear-gradient(135deg, ${colors1.join(', ')})`,
+                  colorPrimaryHover: `linear-gradient(135deg, ${getHoverColors(colors1).join(', ')})`,
+                  colorPrimaryActive: `linear-gradient(135deg, ${getActiveColors(colors1).join(', ')})`,
+                  lineWidth: 0,
                 },
-              }}
-            >
-              <Link to="/movies">
-                <Button type="primary" size="large">
-                  Фильмы
-                </Button>
-              </Link>
-            </ConfigProvider>
+              },
+            }}
+          >
+            <Link to="/movies">
+              <Button type="primary" size="large">
+                Фильмы
+              </Button>
+            </Link>
+          </ConfigProvider>
 
-            <ConfigProvider
-              theme={{
-                components: {
-                  Button: {
-                    colorPrimary: `linear-gradient(90deg,  ${colors2.join(', ')})`,
-                    colorPrimaryHover: `linear-gradient(90deg, ${getHoverColors(colors2).join(', ')})`,
-                    colorPrimaryActive: `linear-gradient(90deg, ${getActiveColors(colors2).join(', ')})`,
-                    lineWidth: 0,
-                  },
+          <ConfigProvider
+            theme={{
+              components: {
+                Button: {
+                  colorPrimary: `linear-gradient(90deg,  ${colors2.join(', ')})`,
+                  colorPrimaryHover: `linear-gradient(90deg, ${getHoverColors(colors2).join(', ')})`,
+                  colorPrimaryActive: `linear-gradient(90deg, ${getActiveColors(colors2).join(', ')})`,
+                  lineWidth: 0,
                 },
-              }}
-            >
-              <Link to="/music">
-                <Button type="primary" size="large">
-                  Музыка
-                </Button>
-              </Link>
-            </ConfigProvider>
+              },
+            }}
+          >
+            <Link to="/music">
+              <Button type="primary" size="large">
+                Музыка
+              </Button>
+            </Link>
+          </ConfigProvider>
 
-            <ConfigProvider
-              theme={{
-                components: {
-                  Button: {
-                    colorPrimary: `linear-gradient(135deg, ${colors1.join(', ')})`,
-                    colorPrimaryHover: `linear-gradient(135deg, ${getHoverColors(colors1).join(', ')})`,
-                    colorPrimaryActive: `linear-gradient(135deg, ${getActiveColors(colors1).join(', ')})`,
-                    lineWidth: 0,
-                  },
+          <ConfigProvider
+            theme={{
+              components: {
+                Button: {
+                  colorPrimary: `linear-gradient(135deg, ${colors1.join(', ')})`,
+                  colorPrimaryHover: `linear-gradient(135deg, ${getHoverColors(colors1).join(', ')})`,
+                  colorPrimaryActive: `linear-gradient(135deg, ${getActiveColors(colors1).join(', ')})`,
+                  lineWidth: 0,
                 },
-              }}
-            >
-              <Link to="/image">
-                <Button type="primary" size="large">
-                  Картинки
-                </Button>
-              </Link>
-            </ConfigProvider>
+              },
+            }}
+          >
+            <Link to="/image">
+              <Button type="primary" size="large">
+                Картинки
+              </Button>
+            </Link>
+          </ConfigProvider>
 
-            <ConfigProvider
-              theme={{
-                components: {
-                  Button: {
-                    colorPrimary: `linear-gradient(116deg,  ${colors3.join(', ')})`,
-                    colorPrimaryHover: `linear-gradient(116deg, ${getHoverColors(colors3).join(', ')})`,
-                    colorPrimaryActive: `linear-gradient(116deg, ${getActiveColors(colors3).join(', ')})`,
-                    lineWidth: 0,
-                  },
+          <ConfigProvider
+            theme={{
+              components: {
+                Button: {
+                  colorPrimary: `linear-gradient(116deg,  ${colors3.join(', ')})`,
+                  colorPrimaryHover: `linear-gradient(116deg, ${getHoverColors(colors3).join(', ')})`,
+                  colorPrimaryActive: `linear-gradient(116deg, ${getActiveColors(colors3).join(', ')})`,
+                  lineWidth: 0,
                 },
-              }}
-            >
-              <Link to="/ram">
-                <Button type="primary" size="large">
-                  Рик и Морти
-                </Button>
-              </Link>
-            </ConfigProvider>
+              },
+            }}
+          >
+            <Link to="/ram">
+              <Button type="primary" size="large">
+                Рик и Морти
+              </Button>
+            </Link>
+          </ConfigProvider>
 
-            <ConfigProvider
-              theme={{
-                components: {
-                  Button: {
-                    colorPrimary: `linear-gradient(135deg, ${colors1.join(', ')})`,
-                    colorPrimaryHover: `linear-gradient(135deg, ${getHoverColors(colors1).join(', ')})`,
-                    colorPrimaryActive: `linear-gradient(135deg, ${getActiveColors(colors1).join(', ')})`,
-                    lineWidth: 0,
-                  },
+          <ConfigProvider
+            theme={{
+              components: {
+                Button: {
+                  colorPrimary: `linear-gradient(135deg, ${colors1.join(', ')})`,
+                  colorPrimaryHover: `linear-gradient(135deg, ${getHoverColors(colors1).join(', ')})`,
+                  colorPrimaryActive: `linear-gradient(135deg, ${getActiveColors(colors1).join(', ')})`,
+                  lineWidth: 0,
                 },
-              }}
-            >
-              <Link to="/numbers">
-                <Button type="primary" size="large">
-                  Интересная дата
-                </Button>
-              </Link>
-            </ConfigProvider>
-          </Space>
-        )}
+              },
+            }}
+          >
+            <Link to="/numbers">
+              <Button type="primary" size="large">
+                Интересная дата
+              </Button>
+            </Link>
+          </ConfigProvider>
+        </Space>
       </Space>
 
-      <Button type="primary" shape="round" icon={<HeartOutlined />} onClick={handleFavoritesClick} ><Link to="/favorites"/></Button> 
-
-
-        <Button type="primary" shape="round" icon={<UserOutlined />} onClick={handleFavoritesClick}><Link to="/profile"/></Button>
-     
+      <Button type="primary" shape="round" icon={<HeartOutlined />} onClick={handleFavoritesClick} />
+      <Button type="primary" shape="round" icon={<UserOutlined />} onClick={handleProfileClick} />
 
       <AuthModal
         visible={isAuthModalVisible}

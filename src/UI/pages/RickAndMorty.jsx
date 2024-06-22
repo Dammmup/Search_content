@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { Input, Card, Row, Col, Button, Alert, Spin } from 'antd';
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchCharacters } from '../../BL/slices/rickAndMortySlice';
+import { fetchCharacters,likeCharacter,unlikeCharacter } from '../../BL/slices/rickAndMortySlice';
 import { HeartOutlined, HeartFilled } from '@ant-design/icons';
 import './styles/RickAndMorty.css'; 
 import Buttons from '../components/SearchBar';
@@ -13,23 +13,26 @@ const { Meta } = Card;
 
 export const RickAndMorty = () => {
   const dispatch = useDispatch();
-  const { characters, status, error } = useSelector((state) => state.rickAndMorty);
+  const { characters, status, error, likedCharacters } = useSelector((state) => state.rickAndMorty);
   const [isFlying, setIsFlying] = useState(null);
-  const [liked, setLiked] = useState({});
 
   const onSearch = (value) => {
     dispatch(fetchCharacters(value));
   };
 
-  const handleLike = (characterId) => {
-    setLiked((prev) => ({
-      ...prev,
-      [characterId]: !prev[characterId],
-    }));
-    setIsFlying(characterId);
+  const handleLike = (character) => {
+
+    setIsFlying(character);
     setTimeout(() => {
       setIsFlying(null);
     }, 1000);
+
+
+    if (likedCharacters.some((likedCharacter) => likedCharacter.id === character.id)) {
+      dispatch(unlikeCharacter(character));
+    } else {
+      dispatch(likeCharacter(character));
+    }
   };
 
   return (
@@ -56,7 +59,7 @@ export const RickAndMorty = () => {
             {characters.map((character) => (
               <Col key={character.id} xs={24} sm={12} md={8} lg={6} xl={4}>
                 <Card
-                  className={`character-card ${isFlying === character.id ? 'fly-to-cart' : ''}`}
+                  className={`character-card ${likedCharacters.some((likedCharacter) => likedCharacter.id === character.id) ? 'liked' : ''}`}
                   hoverable
                   style={{ width: 200 }}
                   cover={<img alt={character.name} src={character.image} />}
@@ -68,12 +71,17 @@ export const RickAndMorty = () => {
                   <p>Место происхождения: {character.origin.name}</p>
                   <p>Местоположение: {character.location.name}</p>
                   <Button
-                    icon={liked[character.id] ? <HeartFilled /> : <HeartOutlined />}
-                    onClick={() => handleLike(character.id)}
-                    style={{ display: 'block', marginTop: '10px' }}
-                  >
-                    {liked[character.id] ? 'Liked' : 'Лайк'}
-                  </Button>
+                    type="text"
+                    icon={
+                      likedCharacters.some((likedCharacter) => likedCharacter.id === character.id) ? (
+                        <HeartFilled style={{ color: 'red' }} />
+                      ) : (
+                        <HeartOutlined />
+                      )
+                    }
+                    onClick={() => handleLike(character)}
+                    className={isFlying === character.id ? 'flying-heart' : ''}
+                  />
                 </Card>
               </Col>
             ))}

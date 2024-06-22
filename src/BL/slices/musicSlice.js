@@ -45,12 +45,18 @@ const musicSlice = createSlice({
   name: 'music',
   initialState: {
     tracks: [],
+    likedTracks: [],
     status: 'idle', // 'idle' | 'loading' | 'succeeded' | 'failed'
     error: null,
   },
   reducers: {
-    // Дополнительные редюсеры могут быть добавлены здесь
-  },
+    likeTrack: (state, action) => {
+      const { id, name, artists,album } = action.payload;
+      state.likedTracks.push({ id, name, artists,album });
+    },
+    unlikeTrack: (state, action) => {
+      state.likedTracks = state.likedTracks.filter(track => track.id !== action.payload.id);
+    }  },
   extraReducers: (builder) => {
     builder
       .addCase(fetchMusic.pending, (state) => {
@@ -67,5 +73,6 @@ const musicSlice = createSlice({
       });
   },
 });
+export const { likeTrack, unlikeTrack } = musicSlice.actions;
 
 export default musicSlice.reducer;
