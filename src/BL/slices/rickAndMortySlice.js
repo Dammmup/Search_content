@@ -23,17 +23,13 @@ const rickAndMortySlice = createSlice({
     characters: [],
     status: 'idle', // 'idle' | 'loading' | 'succeeded' | 'failed'
     error: null,
-    likedCharacters: []
+    // likedCharacters: []
   },
   reducers: {
     likeCharacter: (state, action) => {
-      state.likedCharacters.push(action.payload);
-      console.log('Character liked:', action.payload); // Лог для проверки
+      state.characters = state.characters.map(m => m.id === action.payload.id ? {...m, is_favorite: !m.is_favorite} : m);
     },
-    unlikeCharacter: (state, action) => {
-      state.likedCharacters = state.likedCharacters.filter(character => character.id !== action.payload.id);
-      console.log('Character unliked:', action.payload); // Лог для проверки
-    },
+
   },
   extraReducers: (builder) => {
     builder
@@ -43,7 +39,7 @@ const rickAndMortySlice = createSlice({
       })
       .addCase(fetchCharacters.fulfilled, (state, action) => {
         state.status = 'succeeded';
-        state.characters = action.payload;
+        state.characters = action.payload.map(m => ({...m, is_favorite: false}));;
       })
       .addCase(fetchCharacters.rejected, (state, action) => {
         state.status = 'failed';
@@ -53,6 +49,6 @@ const rickAndMortySlice = createSlice({
 });
 
 
-export const { likeCharacter, unlikeCharacter } = rickAndMortySlice.actions;
+export const { likeCharacter } = rickAndMortySlice.actions;
 
 export default rickAndMortySlice.reducer;

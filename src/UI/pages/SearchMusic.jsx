@@ -1,36 +1,26 @@
 import React, { useState } from 'react';
 import { Input, Card, Row, Col, Button, Alert, Spin } from 'antd';
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchMusic,likeTrack,unlikeTrack } from '../../BL/slices/musicSlice';
+import { fetchMusic,likeTrack } from '../../BL/slices/musicSlice';
 import { HeartOutlined, HeartFilled } from '@ant-design/icons';
-import './styles/SearchMusic.css'; 
 import Buttons from '../components/SearchBar';
 import { Flex } from 'antd';
+import './styles/Profile.css'; // Импортируем стили
+import { Footer } from 'antd/es/layout/layout';
 
 const { Search } = Input;
 
 export const SearchMusic = () => {
   const dispatch = useDispatch();
-  const { tracks, status, error,likedTracks } = useSelector((state) => state.music);
-  const [isFlying, setIsFlying] = useState(null); 
+  const { tracks, status, error } = useSelector((state) => state.music);
 
   const onSearch = (value) => {
     dispatch(fetchMusic(value));
   };
 
   const handleLike = (track) => {
-  
-    setIsFlying(track); 
-    setTimeout(() => {
-      setIsFlying(null);
-    }, 1000); 
-    if (likedTracks.some((likedTrack) => likedTrack.id === track.id)) {
-      dispatch(unlikeTrack(track));
-    } else {
-      dispatch(likeTrack(track));
-    }
-  };
-
+    dispatch(likeTrack(track));
+};
   return (
     <>
       <Buttons />
@@ -43,6 +33,7 @@ export const SearchMusic = () => {
           onSearch={onSearch}
         />
       </div>
+      <div className="profile-container">
       <div className="results-container" style={{ marginTop: '20px' }}>
         {status === 'loading' ? (
           <Flex align="center" justify="center" style={{ height: '100%' }}>
@@ -55,7 +46,7 @@ export const SearchMusic = () => {
             {tracks.map((result) => (
               <Col key={result.id} xs={24} sm={12} md={8} lg={6}>
                 <Card
-                  className={`track-card ${likedTracks.some((likedTrack) => likeTrack.id === result.id) ? 'liked' : ''}`}
+                  className={`track-card ${tracks.some((likedTrack) => likeTrack.id === result.id) ? 'liked' : ''}`}
                   hoverable
                   style={{ marginBottom: 16 }}
                   cover={
@@ -71,14 +62,12 @@ export const SearchMusic = () => {
                    <Button
                     type="text"
                     icon={
-                      likedTracks.some((likedTrack) => likedTrack.id === result.id) ? (
-                        <HeartFilled style={{ color: 'red' }} />
-                      ) : (
-                        <HeartOutlined />
-                      )
+                      result.is_favorite ? 
+                      <HeartFilled style={{ color: 'red' }} />
+                      :
+<HeartOutlined /> 
                     }
                     onClick={() => handleLike(result)}
-                    className={isFlying === result.id ? 'flying-heart' : ''}
                   />
                 </Card>
               </Col>
@@ -88,6 +77,14 @@ export const SearchMusic = () => {
           <div></div>
         )}
       </div>
+        </div>
+      <Footer className="profile-footer">
+          <h5 className="footer-title">Find us</h5>
+          <div className="footer-contacts">
+            <p>+7(747)8313398</p>
+            <p>damir.-@mail.ru</p>
+          </div>
+        </Footer>
     </>
   );
 };

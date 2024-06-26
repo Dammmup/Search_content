@@ -19,7 +19,7 @@ export const Empty = () => {
         <Header style={{ background: '#fff', padding: 0, textAlign: 'center' }}>
           <Title level={2}>Корзина пуста :С</Title>
         </Header>
-        <Content style={{ padding: '0 50px', textAlign: 'center' }}>
+        <Content style={{ padding: '0 50px', textAlign: 'center' }} className="profile-container">
           <Space direction="vertical" size="large" style={{ width: '100%' }}>
             <Title level={4}>Вероятней всего, вы не заказывали ещё ничего.</Title>
             <Text>Для того, чтобы заказать что-то, перейди на главную страницу.</Text>

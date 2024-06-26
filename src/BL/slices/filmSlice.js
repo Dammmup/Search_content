@@ -7,7 +7,7 @@ export const fetchFilms = createAsyncThunk(
     try {
       const response = await axios.get(`https://api.kinopoisk.dev/v1.4/movie/search?query=${query}`, {
         headers: {
-          'X-API-KEY': 'TVNGA92-EXWMKR4-N35G404-MPWWSHX'
+          'X-API-KEY': '0Y26KB7-3SB4NK8-N277RVY-NQW1TEN'
         }
       });
       return response.data.docs;
@@ -21,17 +21,14 @@ const filmSlice = createSlice({
   name: 'films',
   initialState: {
     films: [],
-    likedFilms: [],
     status: 'idle',
     error: null,
   },
   reducers: {
     likeFilm: (state, action) => {
-      state.likedFilms.push(action.payload);
+      state.films = state.films.map(m => m.id === action.payload.id ? {...m, is_favorite: !m.is_favorite} : m);
     },
-    unlikeFilm: (state, action) => {
-      state.likedFilms = state.likedFilms.filter(film => film.id !== action.payload.id);
-    },
+
   },
   extraReducers: (builder) => {
     builder
@@ -41,7 +38,7 @@ const filmSlice = createSlice({
       })
       .addCase(fetchFilms.fulfilled, (state, action) => {
         state.status = 'succeeded';
-        state.films = action.payload;
+        state.films = action.payload.map(m => ({...m, is_favorite: false}));
       })
       .addCase(fetchFilms.rejected, (state, action) => {
         state.status = 'failed';
@@ -50,5 +47,5 @@ const filmSlice = createSlice({
   },
 });
 
-export const { likeFilm, unlikeFilm } = filmSlice.actions;
+export const { likeFilm } = filmSlice.actions;
 export default filmSlice.reducer;

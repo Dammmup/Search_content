@@ -2,11 +2,12 @@
 import React, { useState } from 'react';
 import { Input, Card, Row, Col, Button, Alert, Spin } from 'antd';
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchImages, likeImage, unlikeImage } from '../../BL/slices/imageSlice';
+import { fetchImages, likeImage } from '../../BL/slices/imageSlice';
 import { HeartOutlined, HeartFilled } from '@ant-design/icons';
-import './styles/SearchImage.css'; // Импортируем CSS для анимации
 import Buttons from '../components/SearchBar';
 import { Flex } from 'antd';
+import { Footer } from 'antd/es/layout/layout';
+import './styles/Profile.css'; // Импортируем стили
 
 const { Search } = Input;
 
@@ -14,27 +15,15 @@ export const SearchImage = () => {
   const dispatch = useDispatch();
   const { images, status, error,likedImages } = useSelector((state) => state.images);
   const [query, setQuery] = useState('');
-  const [isFlying, setIsFlying] = useState(null); // Для управления анимацией
 
   const onSearch = (value) => {
     setQuery(value);
     dispatch(fetchImages(value));
   };
 
-
-
   const handleLike = (image) => {
-    setIsFlying(image);
-    setTimeout(() => {
-      setIsFlying(null);
-    }, 1000);
-
-    if (likedImages.some((likedimage) => likedimage.id === image.id)) {
-      dispatch(unlikeImage(image));
-    } else {
-      dispatch(likeImage(image));
-    }
-  };
+    dispatch(likeImage(image));
+};
   return (
     <div>
       <Buttons />
@@ -48,6 +37,7 @@ export const SearchImage = () => {
           onSearch={onSearch}
         />
       </div>
+      <div className="profile-container">
       <div className="results-container" style={{ marginTop: '20px' }}>
         {status === 'loading' ? (
           <Flex align="center" justify="center" style={{ height: '100%' }}>
@@ -60,7 +50,7 @@ export const SearchImage = () => {
             {images.map((result) => (
               <Col key={result.id} xs={24} sm={12} md={8} lg={6}>
                 <Card
-                  className={`image-card ${likedImages.some((likedImage) => likeImage.id === result.id) ? 'liked' : ''} ${isFlying === result.id ? 'fly-to-cart' : ''}`}
+                  className={`image-card ${images.some((likedImage) => likeImage.id === result.id) ? 'liked' : ''} `}
                   hoverable
                   style={{ marginBottom: 16 }}
                   cover={
@@ -75,14 +65,13 @@ export const SearchImage = () => {
                   <Button
                     type="text"
                     icon={
-                      likedImages.some((likedImage) => likedImage.id === result.id) ? (
+                      result.is_favorite 
+                        ?
                         <HeartFilled style={{ color: 'red' }} />
-                      ) : (
+                        :
                         <HeartOutlined />
-                      )
                     }
                     onClick={() => handleLike(result)}
-                    className={isFlying === result.id ? 'flying-heart' : ''}
                   />
                 </Card>
               </Col>
@@ -92,13 +81,14 @@ export const SearchImage = () => {
           <div></div>
         )}
       </div>
-      <footer >
-<h5 style={{textAlign:'center'}}>Find us</h5>
-<div style={{display:'flex',justifyContent:'space-around'}}>
-<p> +7(747)8313398  </p>
-<p> damir.-@mail.ru </p>
-</div>
-</footer>
+      </div>
+      <Footer className="profile-footer">
+          <h5 className="footer-title">Find us</h5>
+          <div className="footer-contacts">
+            <p>+7(747)8313398</p>
+            <p>damir.-@mail.ru</p>
+          </div>
+        </Footer>
     </div>
   );
 

@@ -1,10 +1,10 @@
 import Title from "antd/es/typography/Title";
-import React from "react";
+import React, { useState } from "react"; // Импортируем useState
 import { useSelector } from 'react-redux';
-import { Typography, Layout, List, Divider } from 'antd';
+import { Typography, Layout, List, Button, Modal } from 'antd'; // Импортируем Modal из Ant Design
 import './styles/Profile.css'; // Импортируем стили
 import Buttons from "../components/SearchBar";
-import { accounts } from "../../BL/userdb";
+import { useNavigate } from 'react-router-dom'; // Импортируем useNavigate для перенаправления
 
 const { Footer } = Layout;
 
@@ -15,6 +15,7 @@ export const Profile = () => {
   const { likedCharacters } = useSelector((state) => state.characters || {});
   const { likedFacts } = useSelector((state) => state.facts || {});
   const { createdAt, goals, achievements } = useSelector((state) => state.user || {});
+  const navigate = useNavigate(); // Инициализируем useNavigate
 
   const likedItems = React.useMemo(
     () => [
@@ -27,7 +28,23 @@ export const Profile = () => {
     [likedFilms, likedImages, likedTracks, likedCharacters, likedFacts]
   );
 
-  const username = localStorage.getItem('username'); // Извлечение имени пользователя из localStorage
+  const username = localStorage.getItem('username'); 
+
+  const [isLogoutModalVisible, setIsLogoutModalVisible] = useState(false); // Создаем состояние для отслеживания видимости модального окна выхода
+
+  const handleLogout = () => {
+    setIsLogoutModalVisible(true); // Показываем модальное окно при нажатии на кнопку выхода
+  };
+
+  const handleConfirmLogout = () => {
+    localStorage.removeItem('username'); // Удаляем имя пользователя из localStorage
+    setIsLogoutModalVisible(false); // Скрываем модальное окно
+    navigate('/'); // Перенаправляем пользователя на страницу входа
+  };
+
+  const handleCancelLogout = () => {
+    setIsLogoutModalVisible(false); // Скрываем модальное окно при отмене
+  };
 
   return (
     <>
@@ -69,6 +86,19 @@ export const Profile = () => {
           </div>
         </Footer>
       </div>
+      <Button type="primary" onClick={handleLogout} className="logout-button">
+        Logout
+      </Button>
+      
+      {/* Модальное окно для подтверждения выхода */}
+      <Modal
+        title="Confirm Logout"
+        visible={isLogoutModalVisible}
+        onOk={handleConfirmLogout}
+        onCancel={handleCancelLogout}
+      >
+        <p>Are you sure you want to logout?</p>
+      </Modal>
     </>
   );
 };

@@ -2,37 +2,26 @@
 import React, { useState } from 'react';
 import { Input, Card, Row, Col, Button, Alert, Spin } from 'antd';
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchCharacters,likeCharacter,unlikeCharacter } from '../../BL/slices/rickAndMortySlice';
+import { fetchCharacters,likeCharacter } from '../../BL/slices/rickAndMortySlice';
 import { HeartOutlined, HeartFilled } from '@ant-design/icons';
-import './styles/RickAndMorty.css'; 
 import Buttons from '../components/SearchBar';
 import { Flex } from 'antd';
+import { Footer } from 'antd/es/layout/layout';
+import './styles/Profile.css'; // Импортируем стили
 
 const { Search } = Input;
 const { Meta } = Card;
 
 export const RickAndMorty = () => {
   const dispatch = useDispatch();
-  const { characters, status, error, likedCharacters } = useSelector((state) => state.rickAndMorty);
-  const [isFlying, setIsFlying] = useState(null);
+  const { characters, status, error } = useSelector((state) => state.rickAndMorty);
 
   const onSearch = (value) => {
     dispatch(fetchCharacters(value));
   };
 
   const handleLike = (character) => {
-
-    setIsFlying(character);
-    setTimeout(() => {
-      setIsFlying(null);
-    }, 1000);
-
-
-    if (likedCharacters.some((likedCharacter) => likedCharacter.id === character.id)) {
-      dispatch(unlikeCharacter(character));
-    } else {
       dispatch(likeCharacter(character));
-    }
   };
 
   return (
@@ -44,9 +33,10 @@ export const RickAndMorty = () => {
           allowClear
           enterButton="Поиск"
           onSearch={onSearch}
-          style={{ width: 300, textAlign: 'center' }}
+          style={{ width: 300}}
         />
       </div>
+      <div className="profile-container">
       <div className="results-container" style={{ marginTop: '20px' }}>
         {status === 'loading' ? (
           <Flex align="center" justify="center" style={{ height: '100%' }}>
@@ -57,9 +47,9 @@ export const RickAndMorty = () => {
         ) : characters.length > 0 ? (
           <Row gutter={[16, 16]}>
             {characters.map((character) => (
-              <Col key={character.id} xs={24} sm={12} md={8} lg={6} xl={4}>
+              <Col key={character.id} xs={24} sm={12} md={8} lg={6} xl={6}>
                 <Card
-                  className={`character-card ${likedCharacters.some((likedCharacter) => likedCharacter.id === character.id) ? 'liked' : ''}`}
+                  className={`character-card ${characters.some((likedCharacter) => likedCharacter.id === character.id) ? 'liked' : ''}`}
                   hoverable
                   style={{ width: 200 }}
                   cover={<img alt={character.name} src={character.image} />}
@@ -73,14 +63,13 @@ export const RickAndMorty = () => {
                   <Button
                     type="text"
                     icon={
-                      likedCharacters.some((likedCharacter) => likedCharacter.id === character.id) ? (
+                      character.is_favorite 
+                        ?
                         <HeartFilled style={{ color: 'red' }} />
-                      ) : (
+                        :
                         <HeartOutlined />
-                      )
                     }
                     onClick={() => handleLike(character)}
-                    className={isFlying === character.id ? 'flying-heart' : ''}
                   />
                 </Card>
               </Col>
@@ -90,13 +79,14 @@ export const RickAndMorty = () => {
           <div></div>
         )}
       </div>
-      <footer >
-<h5 style={{textAlign:'center'}}>Find us</h5>
-<div style={{display:'flex',justifyContent:'space-around'}}>
-<p> +7(747)8313398  </p>
-<p> damir.-@mail.ru </p>
-</div>
-</footer>
+     </div>
+      <Footer className="profile-footer">
+          <h5 className="footer-title">Find us</h5>
+          <div className="footer-contacts">
+            <p>+7(747)8313398</p>
+            <p>damir.-@mail.ru</p>
+          </div>
+        </Footer>
     </>
   );
 

@@ -28,16 +28,13 @@ const imageSlice = createSlice({
     images: [],
     status: 'idle', // 'idle' | 'loading' | 'succeeded' | 'failed'
     error: null,
-    likedImages: [],
   },
   reducers: {
     likeImage: (state, action) => {
-      const { id, alt_description, urls } = action.payload;
-      state.likedImages.push({ id, alt_description, urls });
-    },
-    unlikeImage: (state, action) => {
-      state.likedImages = state.likedImages.filter(image => image.id !== action.payload.id);
+      state.images = state.images.map(m => m.id === action.payload.id ? {...m, is_favorite: !m.is_favorite} : m);
+
     }
+
   },
   extraReducers: (builder) => {
     builder
@@ -47,7 +44,7 @@ const imageSlice = createSlice({
       })
       .addCase(fetchImages.fulfilled, (state, action) => {
         state.status = 'succeeded';
-        state.images = action.payload;
+        state.images = action.payload.map(m => ({...m, is_favorite: false}));
       })
       .addCase(fetchImages.rejected, (state, action) => {
         state.status = 'failed';
@@ -56,6 +53,6 @@ const imageSlice = createSlice({
   },
 });
 
-export const { likeImage, unlikeImage } = imageSlice.actions;
+export const { likeImage } = imageSlice.actions;
 
 export default imageSlice.reducer;

@@ -1,13 +1,14 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
 
-// Асинхронные thunk для получения фактов
+// Asynchronous thunks to fetch facts
 export const fetchMathFact = createAsyncThunk(
   'numbersFact/fetchMathFact',
   async (number, { rejectWithValue }) => {
     try {
       const response = await axios.get(`http://numbersapi.com/${number}/math`);
-      return { text: response.data, id: `math-${number}` }; // Добавляем id
+      console.log(response);
+      return { text: response.data, id: `math-${number}` }; // Return object
     } catch (error) {
       return rejectWithValue(error.response?.data || 'Ошибка получения математического факта');
     }
@@ -19,7 +20,9 @@ export const fetchTriviaFact = createAsyncThunk(
   async (number, { rejectWithValue }) => {
     try {
       const response = await axios.get(`http://numbersapi.com/${number}/trivia`);
-      return { text: response.data, id: `trivia-${number}` }; // Добавляем id
+      console.log(response);
+
+      return { text: response.data, id: `trivia-${number}` }; // Return object
     } catch (error) {
       return rejectWithValue(error.response?.data || 'Ошибка получения тривиального факта');
     }
@@ -31,7 +34,9 @@ export const fetchDateFact = createAsyncThunk(
   async (date, { rejectWithValue }) => {
     try {
       const response = await axios.get(`http://numbersapi.com/${date}/date`);
-      return { text: response.data, id: `date-${date}` }; // Добавляем id
+      console.log(response);
+
+      return { text: response.data, id: `date-${date}` }; // Return object
     } catch (error) {
       return rejectWithValue(error.response?.data || 'Ошибка получения факта по дате');
     }
@@ -41,17 +46,19 @@ export const fetchDateFact = createAsyncThunk(
 const numbersFactSlice = createSlice({
   name: 'numbersFact',
   initialState: {
-    fact: '',
+    facts: [], // Initialize as an array to hold multiple facts
     status: 'idle', // 'idle' | 'loading' | 'succeeded' | 'failed'
     error: null,
-    likedFacts: []
   },
   reducers: {
     likeFact: (state, action) => {
-      state.likedFacts.push(action.payload);
-    },
-    unlikeFact: (state, action) => {
-      state.likedFacts = state.likedFacts.filter(fact => fact.id !== action.payload.id);
+
+      const index = state.facts.findIndex(f => f.id === action.payload.id);
+      if (index !== -1) {
+        state.facts[index].is_favorite = !state.facts[index].is_favorite;
+
+      }
+      console.log('liked in redux');
     },
   },
   extraReducers: (builder) => {
@@ -62,7 +69,7 @@ const numbersFactSlice = createSlice({
       })
       .addCase(fetchMathFact.fulfilled, (state, action) => {
         state.status = 'succeeded';
-        state.fact = action.payload;
+        state.facts.push({ ...action.payload, is_favorite: false }); // Push new fact to the array
       })
       .addCase(fetchMathFact.rejected, (state, action) => {
         state.status = 'failed';
@@ -74,7 +81,7 @@ const numbersFactSlice = createSlice({
       })
       .addCase(fetchTriviaFact.fulfilled, (state, action) => {
         state.status = 'succeeded';
-        state.fact = action.payload;
+        state.facts.push({ ...action.payload, is_favorite: false }); // Push new fact to the array
       })
       .addCase(fetchTriviaFact.rejected, (state, action) => {
         state.status = 'failed';
@@ -86,7 +93,7 @@ const numbersFactSlice = createSlice({
       })
       .addCase(fetchDateFact.fulfilled, (state, action) => {
         state.status = 'succeeded';
-        state.fact = action.payload;
+        state.facts.push({ ...action.payload, is_favorite: false }); // Push new fact to the array
       })
       .addCase(fetchDateFact.rejected, (state, action) => {
         state.status = 'failed';
@@ -94,6 +101,7 @@ const numbersFactSlice = createSlice({
       });
   },
 });
-export const { likeFact, unlikeFact } = numbersFactSlice.actions;
+
+export const { likeFact } = numbersFactSlice.actions;
 
 export default numbersFactSlice.reducer;

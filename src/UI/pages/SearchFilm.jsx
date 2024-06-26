@@ -1,35 +1,29 @@
 import { Input, Card, Row, Col, Button, Alert, Spin } from 'antd';
 import React, { useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { fetchFilms, likeFilm, unlikeFilm } from '../../BL/slices/filmSlice';
+import { fetchFilms, likeFilm } from '../../BL/slices/filmSlice';
 import { HeartOutlined, HeartFilled } from '@ant-design/icons';
-import './styles/SearchFilm.css';
 import Buttons from '../components/SearchBar';
 import { Flex } from 'antd';
+import { Footer } from 'antd/es/layout/layout';
+import './styles/Profile.css'; // Импортируем стили
 
 const { Search } = Input;
 
 export const SearchFilm = () => {
   const dispatch = useDispatch();
-  const { films, status, error, likedFilms } = useSelector((state) => state.films);
-  const [isFlying, setIsFlying] = useState(null);
+  const { films, status, error } = useSelector((state) => state.films);
 
   const onSearch = (value) => {
     dispatch(fetchFilms(value));
   };
 
-  const handleLike = (film) => {
-    setIsFlying(film.id);
-    setTimeout(() => {
-      setIsFlying(null);
-    }, 1000);
 
-    if (likedFilms.some((likedFilm) => likedFilm.id === film.id)) {
-      dispatch(unlikeFilm(film));
-    } else {
-      dispatch(likeFilm(film));
-    }
-  };
+  const handleLike = (film) => {
+    dispatch(likeFilm(film));
+};
+    
+
 
   const isValidFilm = (film) => {
     return film.name && film.poster && film.poster.url;
@@ -47,6 +41,7 @@ export const SearchFilm = () => {
           onSearch={onSearch}
         />
       </div>
+      <div className="profile-container">
       <div className="results-container" style={{ marginTop: '20px' }}>
         {status === 'loading' ? (
            <Flex align="center" justify="center" style={{ height: '100%' }}>
@@ -59,7 +54,7 @@ export const SearchFilm = () => {
             {films.filter(isValidFilm).map((result) => (
               <Col key={result.id} xs={24} sm={12} md={8} lg={6}>
                 <Card
-                  className={`film-card ${likedFilms.some((likedFilm) => likedFilm.id === result.id) ? 'liked' : ''}`}
+                  className={`film-card ${films.some((likedFilm) => likedFilm.id === result.id) ? 'liked' : ''}`}
                   hoverable
                   style={{ marginBottom: 16 }}
                   cover={
@@ -80,23 +75,29 @@ export const SearchFilm = () => {
                   <Button
                     type="text"
                     icon={
-                      likedFilms.some((likedFilm) => likedFilm.id === result.id) ? (
-                        <HeartFilled style={{ color: 'red' }} />
-                      ) : (
-                        <HeartOutlined />
-                      )
+                      result.is_favorite ? 
+                      <HeartFilled style={{ color: 'red' }} />
+                      :
+<HeartOutlined /> 
                     }
                     onClick={() => handleLike(result)}
-                    className={isFlying === result.id ? 'flying-heart' : ''}
                   />
                 </Card>
               </Col>
             ))}
           </Row>
         ) : (
-          <p style={{ textAlign: 'center' }}>Нет результатов</p>
+          <p style={{ textAlign: 'center' }}></p>
         )}
       </div>
+      </div>
+      <Footer className="profile-footer">
+          <h5 className="footer-title">Find us</h5>
+          <div className="footer-contacts">
+            <p>+7(747)8313398</p>
+            <p>damir.-@mail.ru</p>
+          </div>
+        </Footer>
     </>
   );
 };

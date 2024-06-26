@@ -45,18 +45,13 @@ const musicSlice = createSlice({
   name: 'music',
   initialState: {
     tracks: [],
-    likedTracks: [],
     status: 'idle', // 'idle' | 'loading' | 'succeeded' | 'failed'
     error: null,
   },
   reducers: {
     likeTrack: (state, action) => {
-      const { id, name, artists,album } = action.payload;
-      state.likedTracks.push({ id, name, artists,album });
-    },
-    unlikeTrack: (state, action) => {
-      state.likedTracks = state.likedTracks.filter(track => track.id !== action.payload.id);
-    }  },
+      state.tracks = state.tracks.map(m => m.id === action.payload.id ? {...m, is_favorite: !m.is_favorite} : m);
+    } },
   extraReducers: (builder) => {
     builder
       .addCase(fetchMusic.pending, (state) => {
@@ -65,7 +60,7 @@ const musicSlice = createSlice({
       })
       .addCase(fetchMusic.fulfilled, (state, action) => {
         state.status = 'succeeded';
-        state.tracks = action.payload;
+        state.tracks = action.payload.map(m => ({...m, is_favorite: false}));
       })
       .addCase(fetchMusic.rejected, (state, action) => {
         state.status = 'failed';
@@ -73,6 +68,6 @@ const musicSlice = createSlice({
       });
   },
 });
-export const { likeTrack, unlikeTrack } = musicSlice.actions;
+export const { likeTrack } = musicSlice.actions;
 
 export default musicSlice.reducer;

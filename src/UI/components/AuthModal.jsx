@@ -1,25 +1,52 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Modal, Button, Form, Input, Alert } from 'antd';
-import { accounts } from '../../BL/userdb';
+import { getAccounts, addUser } from '../../BL/userdb';
 
 const AuthModal = ({ visible, onLogin, onCancel }) => {
   const [form] = Form.useForm();
   const [isLogin, setIsLogin] = useState(true);
   const [error, setError] = useState(null);
 
-  const handleSubmit = (values) => {
-    // Проверка учетных данных с данными в userdb
-    const account = accounts.find(account => 
-      account.username === values.username && account.password === values.password
-    );
-
-    if (account) {
-      localStorage.setItem('username', values.username); // Сохранение имени пользователя
-      onLogin();
-    } else {
-      setError('Неправильные имя пользователя или пароль');
+  useEffect(() => {
+    if (!visible) {
+      form.resetFields();
+      setError(null);
     }
-    console.log(accounts,ac);
+  }, [visible]);
+
+  const handleSubmit = (values) => {
+    const accounts = getAccounts();
+    if (isLogin) {
+      // Логика входа
+      const account = accounts.find(
+        account => account.username === values.username && account.password === values.password
+      );
+
+      if (account) {
+        localStorage.setItem('userToken', account.token || 'defaultToken'); // Используем токен из account или дефолтный
+        localStorage.setItem('username', account.username);
+        onLogin();
+      } else {
+        setError('Неправильные имя пользователя или пароль');
+      }
+    } else {
+      // Логика регистрации
+      if (accounts.some(account => account.username === values.username)) {
+        setError('Пользователь с таким именем уже существует');
+      } else {
+        // Добавление нового пользователя
+        addUser({ username: values.username, password: values.password, token: 'newUserToken' }); // Замените 'newUserToken' на реальный токен
+        localStorage.setItem('userToken', 'newUserToken'); // Замените 'newUserToken' на реальный токен
+        localStorage.setItem('username', values.username);
+        onLogin();
+      }
+    }
+  };
+
+  const handleSwitchMode = () => {
+    setIsLogin(!isLogin);
+    setError(null);
+    form.resetFields();
   };
 
   return (
@@ -54,7 +81,7 @@ const AuthModal = ({ visible, onLogin, onCancel }) => {
           <Button type="primary" htmlType="submit">
             {isLogin ? 'Войти' : 'Зарегистрироваться'}
           </Button>
-          <Button type="link" onClick={() => setIsLogin(!isLogin)} style={{ marginLeft: '10px' }}>
+          <Button type="link" onClick={handleSwitchMode} style={{ marginLeft: '10px' }}>
             {isLogin ? 'Зарегистрироваться' : 'Уже есть аккаунт? Войти'}
           </Button>
         </Form.Item>

@@ -4,7 +4,7 @@ import { HeartOutlined, UserOutlined } from '@ant-design/icons';
 import { Link, useNavigate } from 'react-router-dom';
 import { TinyColor } from '@ctrl/tinycolor';
 import AuthModal from './AuthModal';
-import './searchbar.css';
+import './styles/searchbar.css';
 import logo from './logo.png';
 import { useSelector } from 'react-redux';
 
@@ -21,34 +21,36 @@ const Buttons = () => {
   const [redirectPath, setRedirectPath] = useState(null);
 
   const navigate = useNavigate();
-  const { likedFilms } = useSelector((state) => state.films || {});
-  const { likedImages } = useSelector((state) => state.images || {});
-  const { likedTracks } = useSelector((state) => state.music || {});
-  const { likedCharacters } = useSelector((state) => state.characters || {});
-  const { likedFacts } = useSelector((state) => state.facts || {});
+  const { films, images, tracks, characters, facts } = useSelector((state) => ({
+    films: Array.isArray(state.films) ? state.films.filter(film => film.is_favorite === true) : [],
+    images: Array.isArray(state.images) ? state.images.filter(image => image.is_favorite === true) : [],
+    tracks: Array.isArray(state.music) ? state.music.filter(track => track.is_favorite === true) : [],
+    characters: Array.isArray(state.characters) ? state.characters.filter(character => character.is_favorite === true) : [],
+    facts: Array.isArray(state.facts) ? state.facts.filter(fact => fact.is_favorite === true) : [],
+  }));
 
-  const likedItems = React.useMemo(
-    () => [...(likedFilms || []), ...(likedImages || []), ...(likedTracks || []), ...(likedCharacters || []), ...(likedFacts || [])],
-    [likedFilms, likedImages, likedTracks, likedCharacters, likedFacts]
-  );
 
   useEffect(() => {
-    const checkAuthStatus = () => {
-      const userToken = localStorage.getItem('userToken');
-      console.log('Checking auth status:', userToken); // Отладочный вывод
-      if (userToken) {
-        setIsAuthenticated(true);
-      }
-    };
-    checkAuthStatus();
+    const userToken = localStorage.getItem('userToken');
+    if (userToken) {
+      setIsAuthenticated(true);
+    }
+    console.log(films.length);
+    const modalShown = localStorage.getItem('modalShown');
+    if (modalShown === 'true') {
+      setIsAuthModalVisible(false);
+    } else {
+      setIsAuthModalVisible(true);
+      localStorage.setItem('modalShown', 'true');
+    }
   }, []);
 
   const handleFavoritesClick = () => {
-    if (!isAuthenticated) {
+    if (isAuthenticated) {
       setRedirectPath('/favorites');
       setIsAuthModalVisible(true);
     } else {
-      if (likedItems.length > 0) {
+      if (films.length > 0 || images.length > 0 || tracks.length > 0 || characters.length > 0 || facts.length > 0) {
         navigate('/favorites');
       } else {
         navigate('/empty');
@@ -57,7 +59,7 @@ const Buttons = () => {
   };
 
   const handleProfileClick = () => {
-    if (!isAuthenticated) {
+    if (isAuthenticated) {
       setRedirectPath('/profile');
       setIsAuthModalVisible(true);
     } else {
@@ -68,8 +70,10 @@ const Buttons = () => {
   const handleLogin = () => {
     setIsAuthenticated(true);
     setIsAuthModalVisible(false);
+    localStorage.setItem('modalShown', 'true');
     if (redirectPath) {
-      navigate(redirectPath);
+      navigate(redirectPath === '/favorites' && (films.length === 0 && images.length === 0 && tracks.length === 0 && characters.length === 0 && facts.length === 0) ? '/empty' : redirectPath);
+      setRedirectPath(null); // Сбрасываем путь после перенаправления
     }
   };
 
@@ -108,7 +112,7 @@ const Buttons = () => {
             theme={{
               components: {
                 Button: {
-                  colorPrimary: `linear-gradient(90deg,  ${colors2.join(', ')})`,
+                  colorPrimary: `linear-gradient(90deg, ${colors2.join(', ')})`,
                   colorPrimaryHover: `linear-gradient(90deg, ${getHoverColors(colors2).join(', ')})`,
                   colorPrimaryActive: `linear-gradient(90deg, ${getActiveColors(colors2).join(', ')})`,
                   lineWidth: 0,
@@ -146,7 +150,7 @@ const Buttons = () => {
             theme={{
               components: {
                 Button: {
-                  colorPrimary: `linear-gradient(116deg,  ${colors3.join(', ')})`,
+                  colorPrimary: `linear-gradient(116deg, ${colors3.join(', ')})`,
                   colorPrimaryHover: `linear-gradient(116deg, ${getHoverColors(colors3).join(', ')})`,
                   colorPrimaryActive: `linear-gradient(116deg, ${getActiveColors(colors3).join(', ')})`,
                   lineWidth: 0,

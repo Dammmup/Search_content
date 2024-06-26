@@ -54,4 +54,11 @@
   .footer-contacts p {
     margin: 0;
   }
+  .logout-button {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 1000;
+  }
+  
   

@@ -1,23 +1,20 @@
 import React, { useState } from 'react';
 import { Button, Card, Input, Alert, Spin } from 'antd';
-import moment from 'moment';
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchMathFact, fetchTriviaFact, fetchDateFact, likeFact, unlikeFact } from '../../BL/slices/numbersFactSlice';
+import { fetchMathFact, fetchTriviaFact, fetchDateFact, likeFact } from '../../BL/slices/numbersFactSlice';
 import { HeartOutlined, HeartFilled } from '@ant-design/icons';
-import './styles/NumbersFact.css';
 import Buttons from '../components/SearchBar';
 import { MonthDayPicker } from '../components/MonthDayPicker';
+import { Footer } from 'antd/es/layout/layout';
+import './styles/Profile.css'; // Импортируем стили
 
 export const NumbersFact = () => {
   const dispatch = useDispatch();
-  const { fact, status, error, likedFacts } = useSelector((state) => state.numbersFact);
-  const [date, setDate] = useState(null);
+  const { facts, status, error } = useSelector((state) => state.numbersFact);
   const [mathNumber, setMathNumber] = useState('');
   const [triviaNumber, setTriviaNumber] = useState('');
-  const [isFlying, setIsFlying] = useState(null);
 
   const handleDateChange = (date) => {
-    setDate(date);
     if (date) {
       dispatch(fetchDateFact(date.format('M/D')));
     }
@@ -42,22 +39,16 @@ export const NumbersFact = () => {
   };
 
   const handleLike = (fact) => {
-    setIsFlying(fact.id);
-    setTimeout(() => {
-      setIsFlying(null);
-    }, 1000);
-
-    if (likedFacts.some((likedFact) => likedFact.id === fact.id)) {
-      dispatch(unlikeFact(fact));
-    } else {
-      dispatch(likeFact(fact));
-    }
+    console.log('liked in React');
+    dispatch(likeFact(fact));
   };
+
+  const currentFact = facts.length ? facts[facts.length - 1] : null;
 
   return (
     <div>
       <Buttons />
-      <div style={{ marginBottom: '10px', display: 'flex', flexDirection: 'column', alignContent: 'center', justifyContent: 'space-between', alignItems: 'center' }}>
+      <div style={{ marginBottom: '10px', display: 'flex', flexDirection: 'column', alignContent: 'center', justifyContent: 'space-between', alignItems: 'center' }} >
         <Input
           type="number"
           placeholder="Введите число для Math"
@@ -79,42 +70,41 @@ export const NumbersFact = () => {
         </div>
       </div>
       <div className="results-container" style={{ marginTop: '20px' }}>
-        {status === 'loading' ? (
-          <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
-            <Spin size="large" />
-          </div>
-        ) : error ? (
-          <Alert message={error} type="error" />
-        ) : fact ? (
-          <Card 
-            className={`fact-card ${likedFacts.some((likedFact) => likedFact.id === fact.id) ? 'liked' : ''}`}
-            style={{ marginTop: '20px' }}
-          >
-            <p>{fact.text}</p>
-            <Button
-              type="text"
-              icon={
-                likedFacts.some((likedFact) => likedFact.id === fact.id) ? (
-                  <HeartFilled style={{ color: 'red' }} />
-                ) : (
-                  <HeartOutlined />
-                )
-              }
-              onClick={() => handleLike(fact)}
-              className={isFlying === fact.id ? 'flying-heart' : ''}
-            />
-          </Card>
-        ) : (
-          <div></div>
-        )}
-      </div>
-      <footer>
-        <h5 style={{ textAlign: 'center' }}>Find us</h5>
-        <div style={{ display: 'flex', justifyContent: 'space-around' }}>
-          <p> +7(747)8313398 </p>
-          <p> damir.-@mail.ru </p>
+        <div className="profile-container">
+          {status === 'loading' ? (
+            <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }} >
+              <Spin size="large" />
+            </div>
+          ) : error ? (
+            <Alert message={error} type="error" />
+          ) : currentFact ? (
+            <Card
+              className={`fact-card ${currentFact.is_favorite ? 'liked' : ''}`}
+              style={{ marginTop: '20px' }}
+            >
+              <p>{currentFact.text}</p>
+              <Button
+                type="text"
+                icon={
+                  currentFact.is_favorite ?
+                    <HeartFilled style={{ color: 'red' }} /> :
+                    <HeartOutlined />
+                }
+                onClick={() => handleLike(currentFact)}
+              />
+            </Card>
+          ) : (
+            <div></div>
+          )}
         </div>
-      </footer>
+      </div>
+      <Footer className="profile-footer">
+        <h5 className="footer-title">Find us</h5>
+        <div className="footer-contacts">
+          <p>+7(747)8313398</p>
+          <p>damir.-@mail.ru</p>
+        </div>
+      </Footer>
     </div>
   );
 };
