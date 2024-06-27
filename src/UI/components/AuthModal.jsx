@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Modal, Button, Form, Input, Alert } from 'antd';
-import { getAccounts, addUser } from '../../BL/userdb';
+import { getAccounts, addUser, getCurrentUser, logout } from '../../BL/userdb';
 
 const AuthModal = ({ visible, onLogin, onCancel }) => {
   const [form] = Form.useForm();
@@ -11,6 +11,13 @@ const AuthModal = ({ visible, onLogin, onCancel }) => {
     if (!visible) {
       form.resetFields();
       setError(null);
+    } else {
+      const currentUser = getCurrentUser();
+      if (currentUser) {
+        localStorage.setItem('userToken', currentUser.token);
+        localStorage.setItem('username', currentUser.username);
+        onLogin();
+      }
     }
   }, [visible]);
 
@@ -49,6 +56,7 @@ const AuthModal = ({ visible, onLogin, onCancel }) => {
     form.resetFields();
   };
 
+
   return (
     <Modal
       title={isLogin ? 'Вход' : 'Регистрация'}
@@ -84,6 +92,7 @@ const AuthModal = ({ visible, onLogin, onCancel }) => {
           <Button type="link" onClick={handleSwitchMode} style={{ marginLeft: '10px' }}>
             {isLogin ? 'Зарегистрироваться' : 'Уже есть аккаунт? Войти'}
           </Button>
+
         </Form.Item>
       </Form>
     </Modal>

@@ -22,6 +22,8 @@ export const RickAndMorty = () => {
 
   const handleLike = (character) => {
       dispatch(likeCharacter(character));
+      console.log('liked in React',character);
+
   };
 
   return (

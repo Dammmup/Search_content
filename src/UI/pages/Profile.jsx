@@ -1,83 +1,90 @@
 import Title from "antd/es/typography/Title";
-import React, { useState } from "react"; // Импортируем useState
+import React, { useState, useMemo } from "react";
 import { useSelector } from 'react-redux';
-import { Typography, Layout, List, Button, Modal } from 'antd'; // Импортируем Modal из Ant Design
-import './styles/Profile.css'; // Импортируем стили
+import { Typography, Layout, List, Button, Modal } from 'antd';
+import './styles/Profile.css';
 import Buttons from "../components/SearchBar";
-import { useNavigate } from 'react-router-dom'; // Импортируем useNavigate для перенаправления
+import { useNavigate } from 'react-router-dom';
+import { logout } from '../../BL/userdb';
 
 const { Footer } = Layout;
 
 export const Profile = () => {
-  const { likedFilms } = useSelector((state) => state.films || {});
-  const { likedImages } = useSelector((state) => state.images || {});
-  const { likedTracks } = useSelector((state) => state.music || {});
-  const { likedCharacters } = useSelector((state) => state.characters || {});
-  const { likedFacts } = useSelector((state) => state.facts || {});
-  const { createdAt, goals, achievements } = useSelector((state) => state.user || {});
-  const navigate = useNavigate(); // Инициализируем useNavigate
+  const navigate = useNavigate();
 
-  const likedItems = React.useMemo(
-    () => [
-      ...(likedFilms || []), 
-      ...(likedImages || []), 
-      ...(likedTracks || []), 
-      ...(likedCharacters || []), 
-      ...(likedFacts || [])
-    ],
-    [likedFilms, likedImages, likedTracks, likedCharacters, likedFacts]
-  );
+  // Получаем данные из глобального состояния
+  const { films, images, tracks, characters, facts, user } = useSelector(state => ({
+    films: state.films || [],
+    images: state.images || [],
+    tracks: state.music || [],
+    characters: state.characters || [],
+    facts: state.facts || [],
+    user: state.user || {},
+  }));
 
-  const username = localStorage.getItem('username'); 
+  const username = localStorage.getItem('username');
 
-  const [isLogoutModalVisible, setIsLogoutModalVisible] = useState(false); // Создаем состояние для отслеживания видимости модального окна выхода
+  const [isLogoutModalVisible, setIsLogoutModalVisible] = useState(false);
+
+  // Подсчет "избранных" элементов
+  const countFavorites = (items) => {
+
+    if (!Array.isArray(items)) return 0; // Убедимся, что items - массив
+    return items.filter(item => item.is_favorite).length;
+  };
+
+  const totalFavorites = useMemo(() => (
+    countFavorites(films) +
+    countFavorites(images) +
+    countFavorites(tracks) +
+    countFavorites(characters) +
+    countFavorites(facts)
+
+  ), [films, images, tracks, characters, facts]);
 
   const handleLogout = () => {
-    setIsLogoutModalVisible(true); // Показываем модальное окно при нажатии на кнопку выхода
+    setIsLogoutModalVisible(true);
   };
 
   const handleConfirmLogout = () => {
-    localStorage.removeItem('username'); // Удаляем имя пользователя из localStorage
-    setIsLogoutModalVisible(false); // Скрываем модальное окно
-    navigate('/'); // Перенаправляем пользователя на страницу входа
+    logout();
+    setIsLogoutModalVisible(false);
+    navigate('/');
   };
 
   const handleCancelLogout = () => {
-    setIsLogoutModalVisible(false); // Скрываем модальное окно при отмене
+    setIsLogoutModalVisible(false);
   };
 
   return (
     <>
-      <Buttons/>
+      <Buttons />
       <div className="profile-container">
         <Title className="profile-title">Welcome dear {username}</Title>
         <Typography.Title level={2} className="profile-search-count">
-          Today the count of your search was {likedItems.length}
+          Today the count of your search was {totalFavorites}
         </Typography.Title>
         <div className="profile-section">
           <Typography.Title level={2} className="profile-subtitle">
-            Account Created:
+            Account Created: {user.createdAt || 'Unknown'}
           </Typography.Title>
         </div>
-
         <div className="profile-section">
           <Typography.Text strong className="profile-subtitle">Goals:</Typography.Text>
           <List
             size="small"
-            dataSource={goals || []}
+            dataSource={user.goals || []}
             renderItem={(goal) => <List.Item>{goal}</List.Item>}
           />
         </div>
-
         <div className="profile-section">
           <Typography.Text strong className="profile-subtitle">Achievements:</Typography.Text>
           <List
             size="small"
-            dataSource={achievements || []}
+            dataSource={user.achievements || []}
             renderItem={(achievement) => <List.Item>{achievement}</List.Item>}
           />
         </div>
-
         <Footer className="profile-footer">
           <h5 className="footer-title">Find us</h5>
           <div className="footer-contacts">
@@ -89,8 +96,6 @@ export const Profile = () => {
       <Button type="primary" onClick={handleLogout} className="logout-button">
         Logout
       </Button>
-      
-      {/* Модальное окно для подтверждения выхода */}
       <Modal
         title="Confirm Logout"
         visible={isLogoutModalVisible}

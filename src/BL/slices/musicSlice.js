@@ -51,6 +51,8 @@ const musicSlice = createSlice({
   reducers: {
     likeTrack: (state, action) => {
       state.tracks = state.tracks.map(m => m.id === action.payload.id ? {...m, is_favorite: !m.is_favorite} : m);
+      console.log("liked in redux");
+
     } },
   extraReducers: (builder) => {
     builder

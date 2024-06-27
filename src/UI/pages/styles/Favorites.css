@@ -10,3 +10,7 @@
     justify-content: center;
     align-items: center;
 }
+.kek{
+    display: flex;
+    justify-content: space-around;
+}

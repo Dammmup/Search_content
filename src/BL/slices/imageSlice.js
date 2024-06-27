@@ -32,6 +32,7 @@ const imageSlice = createSlice({
   reducers: {
     likeImage: (state, action) => {
       state.images = state.images.map(m => m.id === action.payload.id ? {...m, is_favorite: !m.is_favorite} : m);
+      console.log("liked in redux");
 
     }
 

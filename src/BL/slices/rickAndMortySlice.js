@@ -23,10 +23,10 @@ const rickAndMortySlice = createSlice({
     characters: [],
     status: 'idle', // 'idle' | 'loading' | 'succeeded' | 'failed'
     error: null,
-    // likedCharacters: []
   },
   reducers: {
     likeCharacter: (state, action) => {
+      console.log("liked in redux");
       state.characters = state.characters.map(m => m.id === action.payload.id ? {...m, is_favorite: !m.is_favorite} : m);
     },
 

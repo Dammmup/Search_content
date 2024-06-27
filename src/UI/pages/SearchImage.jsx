@@ -23,6 +23,8 @@ export const SearchImage = () => {
 
   const handleLike = (image) => {
     dispatch(likeImage(image));
+    console.log('liked in React',image.alt_description);
+
 };
   return (
     <div>

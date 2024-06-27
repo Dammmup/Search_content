@@ -21,6 +21,8 @@ export const SearchFilm = () => {
 
   const handleLike = (film) => {
     dispatch(likeFilm(film));
+    console.log('liked in React',film.name);
+
 };
     
 

@@ -23,3 +23,19 @@ export const addUser = (newAccount) => {
   existingAccounts.push(newAccount);
   saveAccounts(existingAccounts);
 };
+
+// Получить текущего пользователя по токену
+export const getCurrentUser = () => {
+  const userToken = localStorage.getItem('userToken');
+  if (!userToken) return null;
+
+  const accounts = getAccounts();
+  return accounts.find(account => account.token === userToken);
+};
+
+// Удалить текущего пользователя (выход)
+export const logout = () => {
+  localStorage.removeItem('userToken');
+  localStorage.removeItem('username');
+};
+

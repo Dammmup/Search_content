@@ -27,6 +27,8 @@ const filmSlice = createSlice({
   reducers: {
     likeFilm: (state, action) => {
       state.films = state.films.map(m => m.id === action.payload.id ? {...m, is_favorite: !m.is_favorite} : m);
+      console.log("liked in redux");
+
     },
 
   },

@@ -20,6 +20,8 @@ export const SearchMusic = () => {
 
   const handleLike = (track) => {
     dispatch(likeTrack(track));
+    console.log('liked in React',track.name);
+
 };
   return (
     <>

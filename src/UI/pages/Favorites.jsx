@@ -41,6 +41,7 @@ export const Favorites = () => {
   const facts = useSelector((state) => state.numbersFact.facts || []);
 
   const handleRemoveLike = (type, id) => {
+    console.log(type);
     switch (type) {
       case 'film':
         dispatch(likeFilm(id));
@@ -64,7 +65,7 @@ export const Favorites = () => {
   }, [films, tracks, images, characters, facts]);
   const renderCards = (items, type) => {
     if (!items || items.length === 0) {
-      return <div>Нет данных для отображения.</div>;
+      return <div style={{textAlign:'center',marginTop:'15px'}}>Нет данных для отображения.</div>;
     }
   
     return (
@@ -94,7 +95,7 @@ export const Favorites = () => {
                     <Button
                       type="text"
                       icon={item.is_favorite ? <HeartFilled style={{ color: 'red' }} /> : <HeartOutlined />}
-                      onClick={() => handleRemoveLike(type, item.id)}
+                      onClick={() => handleRemoveLike(type)}
                     />
                   ]}
                 >
@@ -236,7 +237,7 @@ export const Favorites = () => {
 
 
 
-      <div className="results-container">
+      <div className="results-container" >
         {activeType === 'films' && renderCards(films, 'film')}
         {activeType === 'tracks' && renderCards(tracks, 'track')}
         {activeType === 'images' && renderCards(images, 'image')}
@@ -244,9 +245,11 @@ export const Favorites = () => {
         {activeType === 'facts' && renderCards(facts, 'fact')}
       </div>
 
-      {Array.from({ length: randomCubes() }, (_, i) => (
-        <Cube key={i} position={randomPosition()} />
-      ))}
+      <div style={{display:"flex",flexDirection:'row'}}>
+      {[...Array(randomCubes())].map((_, index) => (
+            <Cube key={index} style={{ ...randomPosition(), width: '100px', height: '100px' }} />
+          ))}
+        </div>
 
 
 

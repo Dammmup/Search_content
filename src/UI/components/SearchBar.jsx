@@ -35,7 +35,6 @@ const Buttons = () => {
     if (userToken) {
       setIsAuthenticated(true);
     }
-    console.log(films.length);
     const modalShown = localStorage.getItem('modalShown');
     if (modalShown === 'true') {
       setIsAuthModalVisible(false);
