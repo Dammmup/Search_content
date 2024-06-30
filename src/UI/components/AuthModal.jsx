@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Modal, Button, Form, Input, Alert } from 'antd';
-import { getAccounts, addUser, getCurrentUser, logout } from '../../BL/userdb';
+import { getAccounts, addUser, getCurrentUser, logout, accounts } from '../../BL/userdb';
 
 const AuthModal = ({ visible, onLogin, onCancel }) => {
   const [form] = Form.useForm();
@@ -8,25 +8,23 @@ const AuthModal = ({ visible, onLogin, onCancel }) => {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    if (!visible) {
-      form.resetFields();
-      setError(null);
-    } else {
-      const currentUser = getCurrentUser();
-      if (currentUser) {
-        localStorage.setItem('userToken', currentUser.token);
-        localStorage.setItem('username', currentUser.username);
-        onLogin();
-      }
+    const modalShown = localStorage.getItem('modalShown');
+    if (modalShown !== 'true') {
+      onOpen(); 
+      localStorage.setItem('modalShown', 'true');
     }
-  }, [visible]);
+  }, []);
+
+  const onOpen = () => {
+    setIsLogin(true); 
+    setError(null);
+    form.resetFields();
+  };
 
   const handleSubmit = (values) => {
-    const accounts = getAccounts();
     if (isLogin) {
-      // Логика входа
-      const account = accounts.find(
-        account => account.username === values.username && account.password === values.password
+            const account = accounts.find(
+        (account) => account.username === values.username && account.password === values.password
       );
 
       if (account) {
@@ -38,7 +36,7 @@ const AuthModal = ({ visible, onLogin, onCancel }) => {
       }
     } else {
       // Логика регистрации
-      if (accounts.some(account => account.username === values.username)) {
+      if (accounts.some((account) => account.username === values.username)) {
         setError('Пользователь с таким именем уже существует');
       } else {
         // Добавление нового пользователя
@@ -56,21 +54,17 @@ const AuthModal = ({ visible, onLogin, onCancel }) => {
     form.resetFields();
   };
 
-
   return (
     <Modal
       title={isLogin ? 'Вход' : 'Регистрация'}
       visible={visible}
       footer={null}
       onCancel={onCancel}
+      onOk={handleSubmit}
+      afterClose={onOpen}
     >
       {error && <Alert message={error} type="error" showIcon />}
-      <Form
-        form={form}
-        layout="vertical"
-        onFinish={handleSubmit}
-        style={{ marginTop: '20px' }}
-      >
+      <Form form={form} layout="vertical" onFinish={handleSubmit} style={{ marginTop: '20px' }}>
         <Form.Item
           label="Имя пользователя"
           name="username"
@@ -92,7 +86,6 @@ const AuthModal = ({ visible, onLogin, onCancel }) => {
           <Button type="link" onClick={handleSwitchMode} style={{ marginLeft: '10px' }}>
             {isLogin ? 'Зарегистрироваться' : 'Уже есть аккаунт? Войти'}
           </Button>
-
         </Form.Item>
       </Form>
     </Modal>

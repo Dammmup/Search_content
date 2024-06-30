@@ -1,15 +1,24 @@
-import { Layout } from "antd"
-import Buttons from "./UI/components/SearchBar"
-import Cube from "./UI/components/Cube"
-import React from 'react';
-import { Footer } from "antd/es/layout/layout";
-import './UI/pages/styles/Profile.css'; // Импортируем стили
+/* eslint-disable no-unused-vars */
+import React, { useState, useEffect } from 'react';
+import Buttons from './UI/components/SearchBar';
+import Cube from './UI/components/Cube';
+import AuthModal from './UI/components/AuthModal'; 
+import { BotomFooter } from './UI/components/BotomFooter';
 
 export const MainPage = () => {
- 
- const randomPositionAndColor = () => ({
-    top: `${Math.random() * 80 + 10}vh`, 
-    left: `${Math.random() * 80 + 10}vw`, 
+  const [isAuthModalVisible, setIsAuthModalVisible] = useState(true);
+
+  useEffect(() => {
+    const modalShown = localStorage.getItem('modalShown');
+    if (modalShown !== 'true') {
+      setIsAuthModalVisible(true); 
+      localStorage.setItem('modalShown', 'true'); 
+    }
+  }, []);
+
+  const randomPositionAndColor = () => ({
+    top: `${Math.random() * 80 + 10}vh`,
+    left: `${Math.random() * 80 + 10}vw`,
     transform: `rotate(${Math.random() * 360}deg)`,
     backgroundColor: `rgb(${Math.random() * 255},${Math.random() * 255},${Math.random() * 255})`,
   });
@@ -21,7 +30,7 @@ export const MainPage = () => {
       <header>
         <Buttons />
       </header>
-      <div style={{ display: 'flex', justifyContent: 'space-around', alignItems: 'center', height: '100vh' }}  >
+      <div style={{ display: 'flex', justifyContent: 'space-around', alignItems: 'center', height: '100vh' }}>
         <div>
           {[...Array(randomCubes())].map((_, index) => (
             <Cube key={index} style={{ ...randomPositionAndColor(), width: '100px', height: '100px' }} />
@@ -39,13 +48,14 @@ export const MainPage = () => {
           ))}
         </div>
       </div>
-      <Footer className="profile-footer">
-          <h5 className="footer-title">Find us</h5>
-          <div className="footer-contacts">
-            <p>+7(747)8313398</p>
-            <p>damir.-@mail.ru</p>
-          </div>
-        </Footer>
+      <BotomFooter/>
+
+      <AuthModal
+        visible={isAuthModalVisible}
+        onLogin={() => setIsAuthModalVisible(false)} 
+        onCancel={() => setIsAuthModalVisible(false)} 
+      />
     </>
   );
 };
+

@@ -26,11 +26,11 @@ const filmSlice = createSlice({
   },
   reducers: {
     likeFilm: (state, action) => {
-      state.films = state.films.map(m => m.id === action.payload.id ? {...m, is_favorite: !m.is_favorite} : m);
+      state.films = state.films.map(film => 
+        film.id === action.payload ? { ...film, is_favorite: !film.is_favorite } : film
+      );
       console.log("liked in redux");
-
     },
-
   },
   extraReducers: (builder) => {
     builder
@@ -40,7 +40,7 @@ const filmSlice = createSlice({
       })
       .addCase(fetchFilms.fulfilled, (state, action) => {
         state.status = 'succeeded';
-        state.films = action.payload.map(m => ({...m, is_favorite: false}));
+        state.films = action.payload.map(film => ({ ...film, is_favorite: false }));
       })
       .addCase(fetchFilms.rejected, (state, action) => {
         state.status = 'failed';

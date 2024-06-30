@@ -8,6 +8,7 @@ import { NumbersFact } from './UI/pages/NumbersFact';
 import { Empty } from './UI/pages/Empty';
 import { Profile } from './UI/pages/Profile';
 import { Favorites } from "./UI/pages/Favorites";
+import { NotFound } from "./UI/pages/NotFound";
 function App() {
 
   return (
@@ -24,6 +25,8 @@ function App() {
         <Route path="/numbers" element={<NumbersFact/>} />
         <Route path="/empty" element={<Empty />}/>
         <Route path="/profile" element ={<Profile/>}/>
+        <Route path="*" element={<NotFound/>} /> {/* Добавляем маршрут для несуществующих страниц */}
+
       </Routes>
     </div>
     </>

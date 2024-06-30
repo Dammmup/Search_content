@@ -1,7 +1,8 @@
+/* eslint-disable react/jsx-key */
+// eslint-disable-next-line no-unused-vars
 import React, { useState, useEffect } from 'react';
-import { Space, ConfigProvider, Button, Row, Col, Card } from 'antd';
-import { TinyColor } from '@ctrl/tinycolor';
-import { Link } from 'react-router-dom';
+import { Space, ConfigProvider, Button, Row, Col, Card, Image } from 'antd';
+import { Link, useNavigate } from 'react-router-dom';
 import { VideoCameraOutlined, CustomerServiceOutlined, FileImageOutlined, TrophyFilled, HeartFilled, HeartOutlined } from '@ant-design/icons';
 import { useSelector, useDispatch } from 'react-redux';
 import './styles/Favorites.css';
@@ -12,22 +13,9 @@ import { likeCharacter } from '../../BL/slices/rickAndMortySlice';
 import { likeFact } from '../../BL/slices/numbersFactSlice';
 import { likeTrack } from '../../BL/slices/musicSlice';
 import Cube from '../components/Cube';
-import { Footer } from 'antd/es/layout/layout';
-import './styles/Profile.css'; // Импортируем стили
+import { colors1,colors2,colors3,randomCubes,getActiveColors,getHoverColors,randomPosition } from './fitch';
+import { BotomFooter } from '../components/BotomFooter';
 
-const colors1 = ['#6253E1', '#04BEFE'];
-const colors2 = ['#fc6076', '#ff9a44', '#ef9d43', '#e75516'];
-const colors3 = ['#40e495', '#30dd8a', '#2bb673'];
-
-const getHoverColors = (colors) => colors.map((color) => new TinyColor(color).lighten(5).toString());
-const getActiveColors = (colors) => colors.map((color) => new TinyColor(color).darken(5).toString());
-const randomPosition = () => ({
-  top: `${Math.random() * 80 + 10}vh`, // Случайное значение от 10 до 90vh
-  left: `${Math.random() * 80 + 10}vw`, // Случайное значение от 10 до 90vw
-  transform: `rotate(${Math.random() * 360}deg)`,
-});
-
-const randomCubes = () => Math.floor(Math.random() + 5);
 
 export const Favorites = () => {
   const dispatch = useDispatch();
@@ -39,14 +27,20 @@ export const Favorites = () => {
   const tracks = useSelector((state) => state.music.tracks || []);
   const characters = useSelector((state) => state.rickAndMorty.characters || []);
   const facts = useSelector((state) => state.numbersFact.facts || []);
-
+  const navigate=useNavigate()
   const handleRemoveLike = (type, id) => {
-    console.log(type);
+    console.log(`Removing like for type: ${type}, id: ${id}`);
     switch (type) {
       case 'film':
+        console.log(id);
         dispatch(likeFilm(id));
         break;
+        case 'track':
+        console.log(id);
+        dispatch(likeTrack(id));
+        break;
       case 'image':
+        console.log(id);
         dispatch(likeImage(id));
         break; 
       case 'fact':
@@ -60,12 +54,19 @@ export const Favorites = () => {
     }
   };
 
-  useEffect(() => {
-    console.log({ films, tracks, images, characters, facts });
-  }, [films, tracks, images, characters, facts]);
+   // Проверка данных при изменении массивов и перенаправление
+   useEffect(() => {
+    const allData = [films, tracks, images, characters, facts];
+    const hasFavoriteData = allData.some((dataArray) => dataArray.some((item) => item.is_favorite));
+
+    if (!hasFavoriteData) {
+      navigate('/empty');
+    }
+  }, [films, tracks, images, characters, facts, navigate]);
   const renderCards = (items, type) => {
+    console.log(items);
     if (!items || items.length === 0) {
-      return <div style={{textAlign:'center',marginTop:'15px'}}>Нет данных для отображения.</div>;
+      return <div style={{textAlign:'center',marginTop:'15px'}}></div>;
     }
   
     return (
@@ -82,22 +83,23 @@ export const Favorites = () => {
                   style={{ marginBottom: 16 }}
                   cover={
                     type === 'track' && item.album && item.album.images && item.album.images[0] ? (
-                      <img alt={item.name} src={item.album.images[0].url} style={{ height: '300px', objectFit: 'cover' }} />
+                      <Image alt={item.name} src={item.album.images[0].url} style={{ height: '300px', objectFit: 'cover' }} />
                     ) : type === 'film' && item.poster && item.poster.url ? (
-                      <img alt={item.name} src={item.poster.url} style={{ height: '300px', objectFit: 'cover' }} />
+                      <Image alt={item.name} src={item.poster.url} style={{ height: '300px', objectFit: 'cover' }} />
                     ) : type === 'image' && item.urls && item.urls.raw ? (
-                      <img alt={item.alt_description} src={item.urls.raw} style={{ height: '300px', objectFit: 'cover' }} />
+                      <Image alt={item.alt_description} src={item.urls.raw} style={{ height: '300px', objectFit: 'cover' }} />
                     ) : type === 'character' && item.image ? (
-                      <img alt={item.name} src={item.image} style={{ height: '300px', objectFit: 'cover' }} />
+                      <Image alt={item.name} src={item.image} style={{ height: '300px', objectFit: 'cover' }} />
                     ) : null
                   }
                   actions={[
                     <Button
                       type="text"
                       icon={item.is_favorite ? <HeartFilled style={{ color: 'red' }} /> : <HeartOutlined />}
-                      onClick={() => handleRemoveLike(type)}
+                      onClick={() => handleRemoveLike(type, item.id)}
                     />
                   ]}
+                  
                 >
                   <Card.Meta
                     description={
@@ -107,21 +109,29 @@ export const Favorites = () => {
                             {item.artists[0].images && item.artists[0].images[0] && (
                               <img alt={item.artists[0].name} src={item.artists[0].images[0].url} style={{ width: '50px', borderRadius: '50%' }} />
                             )}
-                            <p><strong>Исполнитель:</strong> {item.artists[0].name}</p>
+                            <p><strong>Artist:</strong> {item.artists[0].name}</p>
+                            <p><strong>Song:</strong> {item.name}</p>
+                            {/* Проверяем, есть ли ссылки для трека */}
+                            {item.external_urls && item.external_urls.spotify && (
+                              <p><strong>Link:</strong> <a href={item.external_urls.spotify} target="_blank" rel="noopener noreferrer">Listen on Spotify</a></p>
+                            )}
                           </div>
                         )}
                         {type === 'fact' && (
-                          <p><strong>Факт:</strong> {item.text}</p>
+                          <p><strong>Fact:</strong> {item.text}</p>
                         )}
+                         {type === 'image' && (
+                              <p><strong>Link:</strong> <a href={item.urls.full} target="_blank" rel="noopener noreferrer">Open on full screen</a></p>
+                            )}
                         {type === 'character' && (
                           <div>
-                            <p><strong>Имя:</strong> {item.name}</p>
-                            <p><strong>Вид:</strong> {item.species}</p>
-                            <p><strong>Статус:</strong> {item.status}</p>
-                            <p><strong>Местоположение:</strong> {item.location.name}</p>
+                            <p><strong>Name:</strong> {item.name}</p>
+                            <p><strong>View:</strong> {item.species}</p>
+                            <p><strong>Status:</strong> {item.status}</p>
+                            <p><strong>Geolocation:</strong> {item.location.name}</p>
                           </div>
                         )}
-                        {item.year && <p><strong>Год:</strong> {item.year}</p>}
+                        {item.year && <p><strong>Year:</strong> {item.year}</p>}
                       </>
                     }
                   />
@@ -152,7 +162,7 @@ export const Favorites = () => {
         >
           <Link to="/">
             <Button type="primary" size="large">
-              Вернуться назад
+               Go back
             </Button>
           </Link>
         </ConfigProvider>
@@ -250,18 +260,7 @@ export const Favorites = () => {
             <Cube key={index} style={{ ...randomPosition(), width: '100px', height: '100px' }} />
           ))}
         </div>
-
-
-
-
-    
-        <Footer className="profile-footer">
-          <h5 className="footer-title">Find us</h5>
-          <div className="footer-contacts">
-            <p>+7(747)8313398</p>
-            <p>damir.-@mail.ru</p>
-          </div>
-        </Footer>
+<BotomFooter/>
     </>
   );
 };

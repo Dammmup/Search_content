@@ -32,28 +32,7 @@
     font-size: 16px;
   }
   
-  .profile-footer {
-    background-color: #4A90E2; /* Синий цвет */
-    color: white;
-    text-align: center;
-    padding: 20px 0;
-    margin-top: 50px;
-    border-radius: 0 0 10px 10px;
-  }
   
-  .footer-title {
-    margin: 0 0 10px;
-    font-size: 16px;
-  }
-  
-  .footer-contacts {
-    display: flex;
-    justify-content: space-around;
-  }
-  
-  .footer-contacts p {
-    margin: 0;
-  }
   .logout-button {
     position: fixed;
     bottom: 20px;
@@ -61,4 +40,26 @@
     z-index: 1000;
   }
   
+ /* Серое изображение */
+.goal-dinosaur {
+  width: 100px;          /* Ширина изображения динозавра */
+  height: auto;         /* Автоматическая высота для пропорционального масштаба */
+  margin-right: 10px;   /* Отступ справа от изображения */
+  vertical-align: middle; /* Выравнивание по центру */
+  filter: grayscale(100%); /* Применение серого фильтра */
+}
+
+/* Цветное изображение */
+.achievement-dinosaur {
+  width: 100px;          /* Ширина изображения динозавра */
+  height: auto;         /* Автоматическая высота для пропорционального масштаба */
+  margin-right: 10px;   /* Отступ справа от изображения */
+  vertical-align: middle; /* Выравнивание по центру */
+  filter: none;         /* Убираем фильтр */
+}
   
+  .profile-section .ant-list-item {
+    display: flex;
+    align-items: center;
+    padding: 8px 16px; /* Отступы для элементов списка */
+  }

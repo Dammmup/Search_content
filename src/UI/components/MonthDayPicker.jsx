@@ -20,7 +20,7 @@ export const MonthDayPicker = ({ onChange }) => {
         picker="date"
         format="DD/MM"
         disabledDate={(current) => current && current > moment().endOf('day')}
-        placeholder="Выберите день и месяц"
+        placeholder="Enter day and month"
       />
   );
 };

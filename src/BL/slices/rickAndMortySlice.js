@@ -1,4 +1,3 @@
-// src/BL/slices/rickAndMortySlice.js
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
 
@@ -8,15 +7,16 @@ export const fetchCharacters = createAsyncThunk(
   async (name, { rejectWithValue }) => {
     try {
       const response = await axios.get(`https://rickandmortyapi.com/api/character/?name=${name}`);
-      console.log("API Response:", response.data.results); // Лог для проверки данных
+      if (response.data.results.length === 0) {
+        throw new Error("Character's not found"); // Исключение, если персонажи не найдены
+      }
       return response.data.results;
     } catch (error) {
-      return rejectWithValue(error.response?.data || 'Ошибка получения персонажей');
+      return rejectWithValue(error.response?.data?.error || error.message || 'Error getting characters');
     }
   }
 );
 
-// src/BL/slices/rickAndMortySlice.js
 const rickAndMortySlice = createSlice({
   name: 'rickAndMorty',
   initialState: {
@@ -26,10 +26,11 @@ const rickAndMortySlice = createSlice({
   },
   reducers: {
     likeCharacter: (state, action) => {
+      state.characters = state.characters.map(character =>
+        character.id === action.payload ? { ...character, is_favorite: !character.is_favorite } : character
+      );
       console.log("liked in redux");
-      state.characters = state.characters.map(m => m.id === action.payload.id ? {...m, is_favorite: !m.is_favorite} : m);
-    },
-
+    }
   },
   extraReducers: (builder) => {
     builder
@@ -39,7 +40,7 @@ const rickAndMortySlice = createSlice({
       })
       .addCase(fetchCharacters.fulfilled, (state, action) => {
         state.status = 'succeeded';
-        state.characters = action.payload.map(m => ({...m, is_favorite: false}));;
+        state.characters = action.payload.map(m => ({ ...m, is_favorite: false }));
       })
       .addCase(fetchCharacters.rejected, (state, action) => {
         state.status = 'failed';
@@ -48,7 +49,5 @@ const rickAndMortySlice = createSlice({
   },
 });
 
-
 export const { likeCharacter } = rickAndMortySlice.actions;
-
 export default rickAndMortySlice.reducer;

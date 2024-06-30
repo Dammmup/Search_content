@@ -1,15 +1,11 @@
 import { Link } from "react-router-dom";
 import { Space, ConfigProvider, Button, Typography, Layout } from 'antd';
-import { TinyColor } from '@ctrl/tinycolor';
 import Buttons from "../components/SearchBar";
+import { colors1,getActiveColors,getHoverColors } from './fitch';
+import { BotomFooter } from "../components/BotomFooter";
 
 const { Title, Text } = Typography;
-const { Header, Content, Footer } = Layout;
-
-const colors1 = ['#40e495', '#30dd8a', '#2bb673'];
-
-const getHoverColors = (colors) => colors.map((color) => new TinyColor(color).lighten(5).toString());
-const getActiveColors = (colors) => colors.map((color) => new TinyColor(color).darken(5).toString());
+const { Header, Content } = Layout;
 
 export const Empty = () => {
   return (
@@ -17,12 +13,12 @@ export const Empty = () => {
       <Buttons />
       <Layout className="cartPage" style={{ minHeight: '100vh' }}>
         <Header style={{ background: '#fff', padding: 0, textAlign: 'center' }}>
-          <Title level={2}>Корзина пуста :С</Title>
+          <Title level={2}>You haven't any liked cards :c</Title>
         </Header>
         <Content style={{ padding: '0 50px', textAlign: 'center' }} className="profile-container">
           <Space direction="vertical" size="large" style={{ width: '100%' }}>
-            <Title level={4}>Вероятней всего, вы не заказывали ещё ничего.</Title>
-            <Text>Для того, чтобы заказать что-то, перейди на главную страницу.</Text>
+            <Title level={4}>Most likely, you haven't liked anything yet.</Title>
+            <Text>To like something, go to the main page.</Text>
             <ConfigProvider
               theme={{
                 components: {
@@ -37,19 +33,13 @@ export const Empty = () => {
             >
               <Link to="/">
                 <Button type="primary" size="large">
-                  Вернуться назад
+                  Go back
                 </Button>
               </Link>
             </ConfigProvider>
           </Space>
         </Content>
-        <Footer style={{ textAlign: 'center' }}>
-          <Title level={5}>Find us</Title>
-          <Space direction="horizontal" size="large">
-            <Text>+7(747)8313398</Text>
-            <Text>damir.-@mail.ru</Text>
-          </Space>
-        </Footer>
+<BotomFooter/>
       </Layout>
     </>
   );

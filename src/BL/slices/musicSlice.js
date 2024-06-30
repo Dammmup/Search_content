@@ -50,10 +50,11 @@ const musicSlice = createSlice({
   },
   reducers: {
     likeTrack: (state, action) => {
-      state.tracks = state.tracks.map(m => m.id === action.payload.id ? {...m, is_favorite: !m.is_favorite} : m);
+      state.tracks = state.tracks.map(track =>
+        track.id === action.payload ? { ...track, is_favorite: !track.is_favorite } : track
+      );
       console.log("liked in redux");
-
-    } },
+    }},
   extraReducers: (builder) => {
     builder
       .addCase(fetchMusic.pending, (state) => {

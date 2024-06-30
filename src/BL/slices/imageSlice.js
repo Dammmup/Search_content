@@ -1,4 +1,3 @@
-// src/store/imageSlice.js
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
 
@@ -14,10 +13,13 @@ export const fetchImages = createAsyncThunk(
           client_id: UNSPLASH_CLIENT_ID,
         },
       });
+      if (response.data.results.length === 0) {
+        throw new Error('No images for that query.'); 
+      }
       return response.data.results;
     } catch (error) {
       console.error('Error fetching images:', error);
-      return rejectWithValue(error.response?.data || 'Ошибка при загрузке данных с Unsplash');
+      return rejectWithValue(error.response?.data?.errors[0] || error.message || 'Error fetching Unsplash');
     }
   }
 );
@@ -31,11 +33,12 @@ const imageSlice = createSlice({
   },
   reducers: {
     likeImage: (state, action) => {
-      state.images = state.images.map(m => m.id === action.payload.id ? {...m, is_favorite: !m.is_favorite} : m);
+      const imageIndex = state.images.findIndex(image => image.id === action.payload);
+      if (imageIndex >= 0) {
+        state.images[imageIndex].is_favorite = !state.images[imageIndex].is_favorite;
+      }
       console.log("liked in redux");
-
-    }
-
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -45,7 +48,7 @@ const imageSlice = createSlice({
       })
       .addCase(fetchImages.fulfilled, (state, action) => {
         state.status = 'succeeded';
-        state.images = action.payload.map(m => ({...m, is_favorite: false}));
+        state.images = action.payload.map(image => ({ ...image, is_favorite: false }));
       })
       .addCase(fetchImages.rejected, (state, action) => {
         state.status = 'failed';
@@ -55,5 +58,4 @@ const imageSlice = createSlice({
 });
 
 export const { likeImage } = imageSlice.actions;
-
 export default imageSlice.reducer;
